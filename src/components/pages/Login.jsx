@@ -1,6 +1,7 @@
 import React from 'react';
 import Router from 'react-router';
 import {Panel, Input, Button} from 'react-bootstrap';
+import Websocket from 'ws';
 
 var LoginPage = React.createClass({
 
@@ -8,10 +9,27 @@ var LoginPage = React.createClass({
     return {
       loginID: '',
       password: '',
-      isSubmitted: false
+      isSubmitted: false,
+      ws: new WebSocket('ws://webapps3.westeurope.cloudapp.azure.com:8080')
     };
   },
-
+  
+    open: function() {
+      console.log("Hello");
+    },
+    
+    handleData: function(event) {
+      if(event.data.indexOf("true") > -1) {
+        this.transitionTo('dashboard');
+      } else {
+        alert('Wrong username/password');
+      }
+    },
+    componentWillMount: function() {
+    this.state.ws.addEventListener('open', this.open);
+    this.state.ws.addEventListener('message', this.handleData);
+  },
+  
   mixins: [Router.Navigation],
 
   render: function(){
@@ -19,8 +37,8 @@ var LoginPage = React.createClass({
     return <div className="col-md-4 col-md-offset-4">
 
         <div className="text-center">
-          <h1 className="login-brand-text">SB Admin React</h1>
-          <h3 className="text-muted">Created by <a href="http://startreact.com">StartReact.com</a> team</h3>
+          <h1 className="login-brand-text">Welcome to Summit</h1>
+          <h3 className="text-muted">Trade your way to the top!</h3>
         </div>
 
         <Panel header={<h3>Please Sign In</h3>} className="login-panel">
@@ -67,10 +85,8 @@ var LoginPage = React.createClass({
 
   handleLogin: function(e){
 
-    this.transitionTo('dashboard');
-
+    this.state.ws.send("db login " + this.state.loginID + " " + this.state.password);
     return false;
-
   }
 
 });
