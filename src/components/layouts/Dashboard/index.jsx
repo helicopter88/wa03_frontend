@@ -1,7 +1,7 @@
 import React from "react";
 import Router, { Link, RouteHandler } from "react-router";
 
-import {Navbar, Nav, NavItem, NavDropdown, MenuItem, ProgressBar} from "react-bootstrap";
+import {Navbar, Nav, NavItem, NavDropdown, MenuItem, ProgressBar, Button} from "react-bootstrap";
 import $ from "jquery";
 import classNames from "classnames";
 
@@ -47,158 +47,45 @@ var HomePage = React.createClass({
     return (
         <div id="wrapper" className="content">
 
-          <Navbar brand={<span><a href="http://webapps3.westeurope.cloudapp.azure.com/sb-admin-react/build/#/dashboard" title="Summit Trading" rel="home"><img src="../src/common/img/LsummitLogoViolet.PNG"></img> Summit Trading</a> 
-                        <button type="button" className="navbar-toggle" onClick={this.toggleMenu} style={{position: 'absolute', right: 0, top: 0}}>
-              <span className="sr-only">Toggle navigation</span>
-              <span className="icon-bar"></span>
-              <span className="icon-bar"></span>
-              <span className="icon-bar"></span>
-            </button>
-            </span>} fluid={true}  style={ {margin: 0} }>
-            <ul className="nav navbar-top-links navbar-right">
-              <Nav style={ {margin: 0} }>
-                
-                <NavDropdown title=<i className="fa fa-envelope fa-fw"></i> >
-                  <MenuItem eventKey="1">
-                    <div> <strong>John Smith</strong> <span className="pull-right text-muted"> <em>Yesterday</em> </span> </div> 
-                    <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
+          <Navbar brand={<span><a href="http://webapps3.westeurope.cloudapp.azure.com/sb-admin-react/build/#/dashboard" title="Summit Trading" rel="home"><img src="../src/common/img/LsummitLogoViolet.PNG"></img> Summit Trading</a>
+		
+ 
+           </span>} fluid={true}  style={ {margin: 0} }>
+		
+	   <div className="nav navbar-top-links navbar-right">
+	     <Nav style={ {margin: 10} }>
+              
+		<Link to="login">
+			<Button bsStyle="danger"><i className="fa fa-power-off fa-fw"></i> Logout </Button>
+		</Link>
+             </Nav>
+	   </div>
 
-                  </MenuItem>
-                  <MenuItem divider />
-                  <MenuItem eventKey="2">
-                    <div> <strong>John Smith</strong> <span className="pull-right text-muted"> <em>Yesterday</em> </span> </div> 
-                    <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-                  </MenuItem>
-                  <MenuItem divider />
-                  <MenuItem eventKey="3">
-                    <div> <strong>John Smith</strong> <span className="pull-right text-muted"> <em>Yesterday</em> </span> </div> 
-                    <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div> 
-                  </MenuItem>
-                  <MenuItem divider />
-                  <MenuItem eventKey="4">
-                    <strong>Read All Messages</strong> <i className="fa fa-angle-right"></i>
-                  </MenuItem>
-                </NavDropdown>
-
-                <NavDropdown title=<i className="fa fa-tasks fa-fw"></i> >
-                  <MenuItem eventKey="1" style={ {width: 300} }>
-                    <div> 
-                      <p> <strong>Task 1</strong> <span className="pull-right text-muted">40% Complete</span> </p> 
-                      <div>
-                        <ProgressBar active bsStyle="success" now={40} /> 
-                      </div> 
-                    </div>
-                  </MenuItem> 
-                  <MenuItem divider />
-                  <MenuItem eventKey="2">
-                    <div> 
-                      <p> <strong>Task 2</strong> <span className="pull-right text-muted">20% Complete</span> </p> 
-                      <div>
-                        <ProgressBar active bsStyle="info" now={20} />
-                      </div> 
-                    </div> 
-                  </MenuItem> 
-                  <MenuItem divider />
-                  <MenuItem eventKey="3">
-                    <div> 
-                      <p> <strong>Task 3</strong> <span className="pull-right text-muted">60% Complete</span> </p> 
-                      <div>
-                        <ProgressBar active bsStyle="warning" now={60} />
-                      </div> 
-                    </div> 
-                  </MenuItem> 
-                  <MenuItem divider />
-                  <MenuItem eventKey="4">
-                    <div> 
-                      <p> <strong>Task 4</strong> <span className="pull-right text-muted">80% Complete</span> </p> 
-                      <div>
-                        <ProgressBar active bsStyle="danger" now={80} />
-                      </div> 
-                    </div>
-                  </MenuItem> 
-                  <MenuItem divider />
-                  <MenuItem eventKey="5">
-                      <strong>See All Tasks</strong> <i className="fa fa-angle-right"></i>
-                  </MenuItem>
-                </NavDropdown>
-
-                <NavDropdown title=<i className="fa fa-bell fa-fw"></i> >
-                  <MenuItem eventKey="1" style={ {width: 300} }>
-                    <div> <i className="fa fa-comment fa-fw"></i> New Comment <span className="pull-right text-muted small">4 minutes ago</span> </div>
-                  </MenuItem> 
-                  <MenuItem divider />
-                  <MenuItem eventKey="2">
-                    <div> <i className="fa fa-twitter fa-fw"></i> 3 New Followers <span className="pull-right text-muted small">12 minutes ago</span> </div>
-                  </MenuItem> 
-                  <MenuItem divider />
-                  <MenuItem eventKey="3">
-                    <div> <i className="fa fa-envelope fa-fw"></i> Message Sent <span className="pull-right text-muted small">4 minutes ago</span> </div>
-                  </MenuItem> 
-                  <MenuItem divider />
-                  <MenuItem eventKey="4">
-                    <div> <i className="fa fa-tasks fa-fw"></i> New Task <span className="pull-right text-muted small">4 minutes ago</span> </div>
-                  </MenuItem> 
-                  <MenuItem divider />
-                  <MenuItem eventKey="5">
-                    <div> <i className="fa fa-upload fa-fw"></i> Server Rebooted <span className="pull-right text-muted small">4 minutes ago</span> </div>
-                  </MenuItem> 
-                  <MenuItem divider />
-                  <MenuItem eventKey="6">
-                    <strong>See All Alerts</strong> <i className="fa fa-angle-right"></i>
-                  </MenuItem>
-                </NavDropdown>
-
-                <NavDropdown title=<i className="fa fa-user fa-fw"></i> >
-                  <MenuItem eventKey="1">
-                    <i className="fa fa-user fa-fw"></i> User Profile
-                  </MenuItem> 
-                  <MenuItem eventKey="2">
-                    <i className="fa fa-gear fa-fw"></i> Settings
-                  </MenuItem> 
-                  <MenuItem eventKey="3">
-                    <a href="http://www.strapui.com/" onClick={ () => { window.location='http://www.strapui.com/'; } }>
-                      <i className="fa fa-eye fa-fw"></i> Premium React Themes
-                    </a>
-                  </MenuItem> 
-                  <MenuItem divider />
-                  <MenuItem eventKey="4">
-                    <Link to="login">
-                      <i className="fa fa-sign-out fa-fw"></i> Logout
-                    </Link>
-                  </MenuItem>
-                </NavDropdown>
-
-              </Nav>
-            </ul> 
+ 
             <div className="navbar-default sidebar" style={ { 'marginLeft': '-20px' } } role="navigation">
               <div className="sidebar-nav navbar-collapse">
                 
                 <ul className="nav in" id="side-menu">
-
-              
                   <li>
-                    <Link to="dashboard.home"><i className="fa fa-dashboard fa-fw"></i> Portfolio</Link>
+                    <Link to="dashboard.home"><i className="fa fa-home fa-fw"></i> Home </Link>
                   </li>
-                        
-                  <li className={classNames({'active': !this.state.chartsElementsCollapsed})}>
-                    <a href="javascript:void(0)" onClick={ () => { this.setState({chartsElementsCollapsed: !this.state.chartsElementsCollapsed}); return false; } }>
-                      <i className="fa fa-bar-chart-o fa-fw"></i> Logout<span className="fa arrow"></span>
-                    </a>
-                    <ul className={classNames({'nav nav-second-level': true, 'collapse': this.state.chartsElementsCollapsed})}>
-                      <li>
-                        <Link to="dashboard.flot-charts">Flot Charts</Link>
-                      </li>
-                      <li>
-                        <Link to="dashboard.morrisjs-charts">Morris.js Charts</Link>
-                      </li>
-                    </ul>
-                  </li>
-              
-                    
+
+		  <li>
+		    <Link to="dashboard.home"><i className="fa fa-briefcase fa-fw"></i> Portfolio </Link>
+		  </li>
+                  
+		  <li>
+		    <Link to="dashboard.home"><i className="fa fa-bar-chart-o fa-fw"></i> Review </Link>
+		  </li>
+		
+		  <li>
+		    <Link to="dashboard.home"><i className="fa fa-question fa-fw"></i> Help </Link>
+		  </li>
                 </ul>
 
               </div>
             </div>
+
 
           </Navbar>
 

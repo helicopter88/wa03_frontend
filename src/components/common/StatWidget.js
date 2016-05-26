@@ -12,7 +12,7 @@ var StatWidget = React.createClass({
                       <i className={this.props.icon}></i>
                     </div>
                     <div className="col-xs-9 text-right">
-			<div>{this.props.headerText}</div> 
+			<h4>{this.props.headerText}</h4> 
 			<div className="huge">{this.props.count}</div>
                     </div>
                   </div>}

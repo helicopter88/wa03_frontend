@@ -23,7 +23,7 @@ var LoginPage = React.createClass({
     
     handleData: function(event) {
       if(event.data.indexOf("true") > -1) {
-	localStorage.setItem("userName", this.state.loginID);
+	sessionStorage.setItem("userName", this.state.loginID);
         this.transitionTo('dashboard');
       } else {
         alert('Wrong username/password');
@@ -39,7 +39,7 @@ var LoginPage = React.createClass({
   render: function(){
   
     return <div className="col-md-4 col-md-offset-4">
-
+ 	
         <div className="text-center">
 	  <img className="login-brand-text" src="../src/common/img/LsummitLogoViolet.PNG"></img>
           <h1 className="login-brand-text">Welcome to Summit</h1>

@@ -14,7 +14,7 @@ var Home = React.createClass({
                 currencyIcon: null,
                 capital: 0,
                 profit: 0,
-		userName: localStorage.userName,
+		userName: sessionStorage.userName,
                 realName: "",
                 upnl: 0,
                 total: 0,
@@ -78,39 +78,92 @@ var Home = React.createClass({
           </div>
         </div>
 
-        <div className="row">
-          <div className="col-lg-3 col-md-6">
-            <StatWidget style="primary"
-                    icon={this.state.currencyIcon}
-                    count={this.state.profit}
-                    headerText="Your total profits"
-                    footerText="View Details"
-                    linkTo="/" />
-          </div>
-          <div className="col-lg-3 col-md-6">
+
+	<div className="col-lg-9">
+	 <div className="row">
+          <div className="col-lg-6 col-md-6">
             <StatWidget style = "panel-green"
                     icon = {this.state.currencyIcon} 
                     count = {this.state.capital}
                     headerText="Your total capital" 
-                    footerText="View Details"
+                    footerText="Go to my portfolio"
                     linkTo="/" />
           </div>
-          <div className="col-lg-3 col-md-6">
+	 </div>	
+	 <div className="row">
+	  <div className="col-lg-4 col-md-6">
+            <StatWidget style="primary"
+                    icon={this.state.currencyIcon}
+                    count={this.state.profit}
+                    headerText="Your total profits"
+                    footerText="Review my progress"
+                    linkTo="/" />
+          </div>
+
+          <div className="col-lg-4 col-md-6">
             <StatWidget style="panel-yellow"
                     icon= {this.state.currencyIcon}
                     count= {this.state.upnl}
                     headerText="Unrealised P & L" 
+		    footerText="View Details"
                     linkTo="/" />
           </div>
-          <div className="col-lg-3 col-md-6">
+          <div className="col-lg-4 col-md-6">
             <StatWidget style="panel-red"
                     icon= "fa fa-line-chart fa-5x"
                     headerText="Sell all positions for" 
                     count={this.state.total}
-                    footerText="SELL"
+                    footerText="Sell all my positions now!"
                     linkTo="/" />                            
           </div>
+	 </div>
         </div>
+
+	<div className="col-lg-3">
+		<Panel header={<span>
+              <i className="fa fa-bell fa-fw"></i> Notifications Panel
+              </span>}>
+              <ListGroup>
+                <ListGroupItem href="javascript:void(0)"><i className="fa fa-comment fa-fw"></i> New Comment
+                  <span className="pull-right text-muted small"><em>4 minutes ago</em></span>
+                </ListGroupItem>
+                <ListGroupItem href="javascript:void(0)">
+                  <i className="fa fa-twitter fa-fw"></i> 3 New Followers
+                  <span className="pull-right text-muted small"><em>12 minutes ago</em></span>
+                </ListGroupItem>
+                <ListGroupItem href="javascript:void(0)">
+                  <i className="fa fa-envelope fa-fw"></i> Message Sent
+                  <span className="pull-right text-muted small"><em>27 minutes ago</em></span>
+                </ListGroupItem>
+                <ListGroupItem href="javascript:void(0)">
+                  <i className="fa fa-tasks fa-fw"></i> New Task
+                  <span className="pull-right text-muted small"><em>43 minutes ago</em></span>
+                </ListGroupItem>
+                <ListGroupItem href="javascript:void(0)">
+                  <i className="fa fa-upload fa-fw"></i> Server Rebooted
+                  <span className="pull-right text-muted small"><em>11:32 AM</em></span>
+                </ListGroupItem>
+                <ListGroupItem href="javascript:void(0)">
+                  <i className="fa fa-bolt fa-fw"></i> Server Crashed!
+                  <span className="pull-right text-muted small"><em>11:13 AM</em></span>
+                </ListGroupItem>
+                <ListGroupItem href="javascript:void(0)">
+                  <i className="fa fa-warning fa-fw"></i> Server Not Responding
+                  <span className="pull-right text-muted small"><em>10:57 AM</em></span>
+                </ListGroupItem>
+                <ListGroupItem href="javascript:void(0)">
+                  <i className="fa fa-shopping-cart fa-fw"></i> New Order Placed
+                  <span className="pull-right text-muted small"><em>9:49 AM</em></span>
+                </ListGroupItem>
+                <ListGroupItem href="javascript:void(0)">
+                  <i className="fa fa-money fa-fw"></i> Payment Received
+                  <span className="pull-right text-muted small"><em>Yesterday</em></span>
+                </ListGroupItem>
+              </ListGroup>
+              <Button block>View All Alerts</Button>
+            </Panel>
+
+	</div>
 
             
      </div>
