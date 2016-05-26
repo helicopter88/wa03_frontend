@@ -47,10 +47,8 @@ var HomePage = React.createClass({
     return (
         <div id="wrapper" className="content">
 
-          <Navbar brand={<span><img src={require('../../../common/img/logo.png')} alt="Start React" title="Start React" />
-            <span>&nbsp;SB Admin React - </span>
-            <a href="http://startreact.com/" title="Start React" rel="home">StartReact.com</a>
-            <button type="button" className="navbar-toggle" onClick={this.toggleMenu} style={{position: 'absolute', right: 0, top: 0}}>
+          <Navbar brand={<span><a href="http://webapps3.westeurope.cloudapp.azure.com/sb-admin-react/build/#/dashboard" title="Summit Trading" rel="home"><img src="../src/common/img/LsummitLogoViolet.PNG"></img> Summit Trading</a> 
+                        <button type="button" className="navbar-toggle" onClick={this.toggleMenu} style={{position: 'absolute', right: 0, top: 0}}>
               <span className="sr-only">Toggle navigation</span>
               <span className="icon-bar"></span>
               <span className="icon-bar"></span>
@@ -177,24 +175,14 @@ var HomePage = React.createClass({
                 
                 <ul className="nav in" id="side-menu">
 
-                  <li className="sidebar-search">
-                    <div className="input-group custom-search-form">
-                      <input type="text" className="form-control" placeholder="Search..." />
-                      <span className="input-group-btn">
-                        <button className="btn btn-default" type="button">
-                          <i className="fa fa-search"></i>
-                        </button>
-                      </span>
-                    </div>
-                  </li>
               
                   <li>
-                    <Link to="dashboard.home"><i className="fa fa-dashboard fa-fw"></i> &nbsp;Dashboard</Link>
+                    <Link to="dashboard.home"><i className="fa fa-dashboard fa-fw"></i> Portfolio</Link>
                   </li>
                         
                   <li className={classNames({'active': !this.state.chartsElementsCollapsed})}>
                     <a href="javascript:void(0)" onClick={ () => { this.setState({chartsElementsCollapsed: !this.state.chartsElementsCollapsed}); return false; } }>
-                      <i className="fa fa-bar-chart-o fa-fw"></i> &nbsp;Charts<span className="fa arrow"></span>
+                      <i className="fa fa-bar-chart-o fa-fw"></i> Logout<span className="fa arrow"></span>
                     </a>
                     <ul className={classNames({'nav nav-second-level': true, 'collapse': this.state.chartsElementsCollapsed})}>
                       <li>
@@ -206,90 +194,7 @@ var HomePage = React.createClass({
                     </ul>
                   </li>
               
-                  <li> 
-                    <Link to="dashboard.tables"><i className="fa fa-table fa-fw"></i> &nbsp;Tables</Link>
-                  </li> 
-              
-                  <li> 
-                    <Link to="dashboard.forms"><i className="fa fa-edit fa-fw"></i> Forms</Link> 
-                  </li>
                     
-                  <li className={classNames({'active': !this.state.uiElementsCollapsed})}> 
-                    <a href="javascript:void(0)" onClick={ () => { this.setState({uiElementsCollapsed: !this.state.uiElementsCollapsed}); return false; } }><i className="fa fa-edit fa-fw"></i> UI Elements<span className="fa arrow"></span></a> 
-
-                    <ul className={classNames({'nav nav-second-level': true, 'collapse': this.state.uiElementsCollapsed})}>
-                      <li>
-                        <Link to="dashboard.panels-wells">Panels and Wells</Link> 
-                      </li>
-                      <li>
-                        <Link to="dashboard.buttons">Buttons</Link> 
-                      </li>
-                      <li>
-                        <Link to="dashboard.notifications">Notifications</Link>
-                      </li>
-                      <li>
-                        <Link to="dashboard.typography">Typography</Link> 
-                      </li>
-                      <li>
-                        <Link to="dashboard.icons"> Icons</Link>
-                      </li>
-                      <li>
-                        <Link to="dashboard.grid">Grid</Link>
-                      </li>
-                    </ul>
-                  </li>
-                    
-                  <li className={classNames({'active': !this.state.multiLevelDropdownCollapsed})}>
-                    <a href="javascript:void(0)" onClick={ () => { this.setState({multiLevelDropdownCollapsed: !this.state.multiLevelDropdownCollapsed}); return false; } }>
-                      <i className="fa fa-sitemap fa-fw"></i>&nbsp;Multi-Level Dropdown<span className="fa arrow"></span>
-                    </a>
-                    <ul className={classNames({'nav nav-second-level': true, 'collapse': this.state.multiLevelDropdownCollapsed})}>
-                      <li>
-                        <a href="javascript:void(0)">Second Level Item</a>
-                      </li>
-                      <li>
-                        <a href="javascript:void(0)">Second Level Item</a>
-                      </li>
-                      <li className={classNames({'active': !this.state.thirdLevelDropdownCollapsed})}>
-                        <a href="javascript:void(0)" onClick={ () => { this.setState({thirdLevelDropdownCollapsed: !this.state.thirdLevelDropdownCollapsed}); return false; } }>
-                          Third Level<span className="fa arrow"></span>
-                        </a>
-                        <ul className={classNames({'nav nav-second-level': true, 'collapse': this.state.thirdLevelDropdownCollapsed})}>
-                          <li>
-                            <a href="javascript:void(0)">Third Level Item</a>
-                          </li>
-                          <li>
-                            <a href="javascript:void(0)">Third Level Item</a>
-                          </li>
-                          <li>
-                            <a href="javascript:void(0)">Third Level Item</a>
-                          </li>
-                          <li>
-                            <a href="javascript:void(0)">Third Level Item</a>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </li> 
-                    
-                  <li className={classNames({'active': !this.state.samplePagesCollapsed})}>
-                    <a href="javascript:void(0)" onClick={ () => { this.setState({samplePagesCollapsed: !this.state.samplePagesCollapsed}); return false; } }>
-                      <i className="fa fa-files-o fa-fw"></i>&nbsp;Sample Pages<span className="fa arrow"></span>
-                    </a> 
-                    <ul className={classNames({'nav nav-second-level': true, 'collapse': this.state.samplePagesCollapsed})}>
-                      <li>
-                        <Link to="dashboard.blank">Blank Page</Link>
-                      </li>
-                      <li>
-                        <Link to="login">Login Page</Link>
-                      </li>
-                    </ul>
-                  </li>
-                    
-                  <li>
-                    <a href="http://www.strapui.com/">Premium React Themes</a>
-                  </li>
-
                 </ul>
 
               </div>

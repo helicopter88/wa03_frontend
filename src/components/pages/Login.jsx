@@ -41,12 +41,12 @@ var LoginPage = React.createClass({
     return <div className="col-md-4 col-md-offset-4">
 
         <div className="text-center">
-	  <img className="login-brand-text" src="../src/common/img/LsummitLogo.PNG"></img>
+	  <img className="login-brand-text" src="../src/common/img/LsummitLogoViolet.PNG"></img>
           <h1 className="login-brand-text">Welcome to Summit</h1>
           <h3 className="text-muted">Trade your way to the top!</h3>
         </div>
 
-        <Panel header={<h3>Please Sign In</h3>} className="login-panel">
+        <Panel className="login-panel">
 
           <form role="form" onSubmit={this.handleLogin}>
             <fieldset>
@@ -58,7 +58,7 @@ var LoginPage = React.createClass({
                 <Input onChange={this.setPassword} className="form-control" placeholder="Password" ref="password" type="password" name="password" />
               </div>
               <Input type="checkbox" label="Remember Me" />
-              <Button type="submit" bsSize="large" bsStyle="success" block>Login</Button>
+              <Button type="submit" bsSize="large" bsStyle="primary" block>Login</Button>
               
             </fieldset>
           </form>
