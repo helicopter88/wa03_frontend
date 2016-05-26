@@ -3,6 +3,9 @@ import Router from 'react-router';
 import {Panel, Input, Button} from 'react-bootstrap';
 import Websocket from 'ws';
 
+	
+
+
 var LoginPage = React.createClass({
 
   getInitialState: function(){
@@ -20,6 +23,7 @@ var LoginPage = React.createClass({
     
     handleData: function(event) {
       if(event.data.indexOf("true") > -1) {
+	localStorage.setItem("userName", this.state.loginID);
         this.transitionTo('dashboard');
       } else {
         alert('Wrong username/password');
@@ -37,6 +41,7 @@ var LoginPage = React.createClass({
     return <div className="col-md-4 col-md-offset-4">
 
         <div className="text-center">
+	  <img className="login-brand-text" src="../src/common/img/LsummitLogo.PNG"></img>
           <h1 className="login-brand-text">Welcome to Summit</h1>
           <h3 className="text-muted">Trade your way to the top!</h3>
         </div>
