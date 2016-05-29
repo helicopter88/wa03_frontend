@@ -32,15 +32,6 @@
     "coveralls": "^2.11.2",
     "istanbul": "^0.3.7",
     "istanbul-instrumenter-loader": "^0.1.2",
-    "karma": "^0.13.9",
-    "karma-coverage": "^0.2.7",
-    "karma-mocha": "^0.1.10",
-    "karma-phantomjs-launcher": "^0.1.4",
-    "karma-sauce-launcher": "^0.2.10",
-    "karma-sinon-chai": "^0.3.0",
-    "karma-webpack": "^1.5.0",
-    "phantomjs": "^1.9.16",
-    "react-hot-loader": "^1.2.3",
     "webpack-dev-server": "^1.7.0"
   },
   "dependencies": {
@@ -76,6 +67,11 @@
     "resource-api-utils": "^1.0.0",
     "style-loader": "^0.12.3",
     "url-loader": "^0.5.6",
-    "webpack": "^1.12.1"
+    "webpack": "^1.12.1",
+    "fs": "0.0.2",
+    "tls": "0.0.1",
+    "ws": "~1.1.0",
+    "bufferutil": "~1.2.1",
+    "utf-8-validate": "~1.2.1"
   }
 }
