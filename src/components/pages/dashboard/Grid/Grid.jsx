@@ -1,8 +1,54 @@
 import React, { PropTypes, Component } from 'react';
-import {Panel, PageHeader} from 'react-bootstrap';
+import {Panel, PageHeader, ListGroup, ListGroupItem} from 'react-bootstrap';
+import Websocket from 'ws';
 
 var Grid = React.createClass({
-
+  getInitialState: function() {
+    return ({
+      elements: [],
+      ws: new WebSocket("ws://webapps3.westeurope.cloudapp.azure.com:8080/")
+    });
+  },
+    handleMessage: function(event) {
+      var length =  sessionStorage.userName.length + 5;
+      if(event.data.indexOf("name") > -1) {
+        console.log(event.data.substring(5));
+        var j = JSON.parse(event.data.substring(5));
+        this.state.elements[j.sym].name = j.res;
+        console.log(this.state.elements[j.sym].name);
+      } 
+      if(event.data.indexOf("ask_price") > -1) {
+        console.log(event.data.substring(10));
+         var j = JSON.parse(event.data.substring(10));
+        this.state.elements[j.sym].ap = j.res;
+        console.log(this.state.elements[j.name].ap);
+      }
+      if(event.data.indexOf("bid_price") > -1) {
+        console.log(event.data.substring(10));
+        var j = JSON.parse(event.data.substring(10));
+        this.state.elements[j.sym].bp = j.res;
+        console.log(this.state.elements[j.name].bp);
+      }
+      if(event.data.indexOf("ow") > -1) {
+        var j = event.data.substring(length);
+        var list = JSON.parse(j);
+        list.map(elem => this.state.ws.send("yahoo ask_price " + elem.instr));
+        list.map(elem => this.state.ws.send("yahoo bid_price " + elem.instr));
+        list.map(elem => this.state.ws.send("yahoo req_name  " + elem.instr));
+        this.setState({
+          elements: list
+        });
+        this.state.elements.map(elem => console.log(elem.instr + elem.amount));
+      }
+    },
+    open: function() {
+      console.log("HELLO");
+      this.state.ws.send("db get_owned " + sessionStorage.userName);
+    },
+    componentWillMount: function() {
+      this.state.ws.addEventListener('open', this.open);
+      this.state.ws.addEventListener('message', this.handleMessage);
+    },
   render: function() {
     return (
 
@@ -20,96 +66,26 @@ var Grid = React.createClass({
               <h3>Grid options</h3>
               <p>See how aspects of the Bootstrap grid system work across multiple devices with a handy table.</p>
               <div className="table-responsive">
-                <table className="table table-bordered table-striped">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th>
-                        Extra small devices
-                        <small>Phones (&lt;768px)</small>
-                      </th>
-                      <th>
-                        Small devices
-                        <small>Tablets (≥768px)</small>
-                      </th>
-                      <th>
-                        Medium devices
-                        <small>Desktops (≥992px)</small>
-                      </th>
-                      <th>
-                        Large devices
-                        <small>Desktops (≥1200px)</small>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <th>Grid behavior</th>
-                      <td>Horizontal at all times</td>
-                      <td colspan="3">Collapsed to start, horizontal above breakpoints</td>
-                    </tr>
-                    <tr>
-                      <th>Max container width</th>
-                      <td>None (auto)</td>
-                      <td>750px</td>
-                      <td>970px</td>
-                      <td>1170px</td>
-                    </tr>
-                    <tr>
-                      <th>Class prefix</th>
-                      <td>
-                        <code>.col-xs-</code>
-                      </td>
-                      <td>
-                        <code>.col-sm-</code>
-                      </td>
-                      <td>
-                        <code>.col-md-</code>
-                      </td>
-                      <td>
-                        <code>.col-lg-</code>
-                      </td>
-                    </tr>
-                    <tr>
-                      <th># of columns</th>
-                      <td colspan="4">12</td>
-                    </tr>
-                    <tr>
-                      <th>Max column width</th>
-                      <td className="text-muted">Auto</td>
-                      <td>60px</td>
-                      <td>78px</td>
-                      <td>95px</td>
-                    </tr>
-                    <tr>
-                      <th>Gutter width</th>
-                      <td colspan="4">30px (15px on each side of a column)</td>
-                    </tr>
-                    <tr>
-                      <th>Nestable</th>
-                      <td colspan="4">Yes</td>
-                    </tr>
-                    <tr>
-                      <th>Offsets</th>
-                      <td colspan="4">Yes</td>
-                    </tr>
-                    <tr>
-                      <th>Column ordering</th>
-                      <td colspan="4">Yes</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p>Grid classes apply to devices with screen widths greater than or equal to the breakpoint sizes, and override grid classes targeted at smaller devices. Therefore, applying any
-                <code>.col-md-</code> class to an element will not only affect its styling on medium devices but also on large devices if a
-                <code>.col-lg-</code> class is not present.</p>
-            </Panel>
+                <ListGroup>
+                            {this.state.elements.map(elem =>
+                  <ListGroupItem href="javascript:void(0)">
+                   <i className="fa fa-money fa-fw"></i> {elem.instr}
+                   <span className="pull-right text-muted small"><em>{elem.amount}</em></span>
+                 </ListGroupItem>
 
-          </div>
+                                                       )}
+                                    </ListGroup>
+            </div>
+            <p>Grid classes apply to devices with screen widths greater than or equal to the breakpoint sizes, and override grid classes targeted at smaller devices. Therefore, applying any
+              <code>.col-md-</code> class to an element will not only affect its styling on medium devices but also on large devices if a
+              <code>.col-lg-</code> class is not present.</p>
+          </Panel>
+
         </div>
+      </div>
 
-        <div className="row">
-          <div className="col-lg-12">
+      <div className="row">
+        <div className="col-lg-12">
 
             <Panel>
               <h3>Example: Stacked-to-horizontal</h3>
