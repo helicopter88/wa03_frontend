@@ -47,7 +47,7 @@ var HomePage = React.createClass({
     return (
         <div id="wrapper" className="content">
 
-          <Navbar brand={<span><a href="http://webapps3.westeurope.cloudapp.azure.com/sb-admin-react/build/#/dashboard" title="Summit Trading" rel="home"><img src="../src/common/img/LsummitLogoViolet.PNG"></img> Summit Trading</a>
+          <Navbar brand={<span><a href="http://webapps3.westeurope.cloudapp.azure.com/frontend/build/#/dashboard" title="Summit Trading" rel="home"><img src="../src/common/img/LsummitLogoViolet.PNG"></img> Summit Trading</a>
 		
  
            </span>} fluid={true}  style={ {margin: 0} }>
@@ -71,7 +71,7 @@ var HomePage = React.createClass({
                   </li>
 
 		  <li>
-		    <Link to="dashboard.home"><i className="fa fa-briefcase fa-fw"></i> Portfolio </Link>
+		    <Link to="dashboard.grid"><i className="fa fa-briefcase fa-fw"></i> Portfolio </Link>
 		  </li>
                   
 		  <li>

@@ -1,44 +1,93 @@
 import React, { PropTypes, Component } from 'react';
-import {Panel, PageHeader, Table, Button, FromControl, FormGroup, Form} from 'react-bootstrap';
+import {Modal, Input, Panel, PageHeader, ControlLabel, Table, Button, Form, FormGroup, FormControl} from 'react-bootstrap';
 import Websocket from 'ws';
 
 var Grid = React.createClass({
   getInitialState: function() {
     return ({
-      details: ({}),
+      showModal: false,
       elements: [],
+      quantity: 0,
+      symbol: "",
+      isLoading: false,
       ws: new WebSocket("ws://webapps3.westeurope.cloudapp.azure.com:8080/")
     });
   },
+  handleSymbol(e) {
+        this.setState({ symbol: e.target.value });
+  },
+
+  handleValue(e) {
+	this.setState({ quantity: e.target.value}); 
+},
+
+    openModal: function() {
+      this.setState({ showModal: true});
+    },
+
+    close: function() { this.setState({showModal: false});},
+
     handleMessage: function(event) {
       var length =  sessionStorage.userName.length + 5;
       if(event.data.indexOf("ow") > -1) {
         var j = event.data.substring(length);
         var list = JSON.parse(j);
-        //list.map(elem => this.state.ws.send("yahoo ask_price " + elem.instr));
-        //list.map(elem => this.state.ws.send("yahoo bid_price " + elem.instr));
-        //list.map(elem => this.state.ws.send("yahoo req_name  " + elem.instr));
         this.setState({
+          isLoading: false,
           elements: list
         });
-        this.state.elements.map(elem => console.log(elem.instr + elem.amount));
+      } 
+      if(event.data.indexOf("exists") > -1) {
+        if(event.data.indexOf("true") > -1) {
+        	this.state.ws.send("yahoo ask_price " + this.state.symbol);
+		//this.state.ws.send("db insert_trans " + sessionStorage.userName
+        }
+        else {
+        	alert("No such symbol");
+        }
+      }
+      if(event.data.indexOf("ask_price") > -1) {
+	var msg = JSON.parse(event.data.substring(10));
+	var price = parseFloat(msg.res);
+        this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + this.state.symbol + " " + price + " " + this.state.quantity + " t"); 
+      }
+      if(event.data.indexOf("it_" + sessionStorage.userName) > -1) {
+	if (event.data.indexOf("false") > -1) {
+	  alert("Failed to execute transaction");
+	} else {
+	this.setState({ showModal:false});
+	this.state.ws.send("db get_owned " + sessionStorage.userName);
+	}
       }
     },
     open: function() {
-      console.log("HELLO");
       this.state.ws.send("db get_owned " + sessionStorage.userName);
     },
     componentWillMount: function() {
       this.state.ws.addEventListener('open', this.open);
       this.state.ws.addEventListener('message', this.handleMessage);
     },
+
+  buyStocks: function() {
+    var quantity = this.state.quantity;
+    var symbol = this.state.symbol;
+    this.state.ws.send("yahoo exists " + symbol);
+    
+  },
+
+  sell: function(elem) {
+	this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + elem.instr + " " + elem.bp + " " + this.state.quantity + " f"); 
+  },
+  
+
   render: function() {
+    var self = this;
     return (
 
       <div>
         <div className="row">
           <div className="col-lg-12">
-            <PageHeader>Grid</PageHeader>
+            <PageHeader>Portfolio</PageHeader>
           </div>
         </div>
 
@@ -46,38 +95,63 @@ var Grid = React.createClass({
           <div className="col-lg-12">
 
             <Panel>
-              <h3>Grid options</h3>
-              <p>See how aspects of the Bootstrap grid system work across multiple devices with a handy table.</p>
+              <Button bsStyle="warning" onClick={this.openModal}>Buy</Button>
+              <h3>Current holdings</h3>
               <div className="table-responsive">
                
               <Table striped bordered condensed hover>
               <thead>
-              <tr>           
-              <th>Instrument</th>
-                      <th>Name</th>
-                      <th>Amount</th>
-                              <th>Bid price</th>
-                              <th>Ask Price</th>
-                              <th>Sell</th>
-              </tr>
-              </thead>
-              <tbody>
-              {this.state.elements.map(elem => <tr>
-                   <td> {elem.instr} </td>
-                   <td>{elem.name} </td> <td>  {elem.amount} </td> <td> {elem.bp} </td> <td> {elem.ap} </td>
-                   </tr>
-                  
-                                                )}
-             </tbody>
-             </Table>
-            </div>
-            
-          </Panel>
-
+            <tr>           
+            <th>Instrument</th>
+                    <th>Name</th>
+                    <th>Amount</th>
+                            <th>Bid price</th>
+                            <th>Ask Price</th>
+			<th>Sell</th>
+            </tr>
+            </thead>
+            <tbody>
+            {this.state.elements.map(elem => <tr>
+                 <td> {elem.instr} </td>
+                 <td>{elem.name} </td> <td>  {elem.amount} </td> <td> {elem.bp} </td> <td> {elem.ap} </td> <td>  <input type="number" value={this.state.quantity} onChange={this.handleValue}></input><Button bsStyle="danger" bsSize="small" disabled={this.state.isLoading}
+       
+          onClick={function() {
+			self.setState({isLoading: true});
+			self.sell(elem);
+			}}>{self.state.isLoading ? 'Selling...' : 'Sell'} {this.state.quantity} of {elem.instr}</Button></td>
+                 </tr>
+                
+                                              )}
+         </tbody>
+        </Table>
         </div>
-      </div>
+        
+      </Panel>
+           <Modal show={this.state.showModal} onHide={this.close}>
+                     <Modal.Header closeButton>
+                                 <Modal.Title>Buy more instruments</Modal.Title>
+                                           </Modal.Header>
 
-      </div>
+                                                     <Modal.Body>
+							<form onSubmit={this.buyStocks}>
+							<h4>The instrument symbol below:</h4>
+							<input type="search" value={this.state.symbol} onChange={this.handleSymbol} placeholder="Eg AAPL:"></input>
+							<br></br>
+							<h4>Quantity below:</h4>
+							<input type="number" value={this.state.quantity} onChange={this.handleValue} placeholder="Quantity:"></input>
+							<br></br><br></br>
+							<Button bsStyle="success" onClick={!this.state.isLoading ? this.buyStocks : null}>{this.state.isLoading ? 'Buying... ' : 'Buy'} {this.state.quantity} of {this.state.symbol}</Button>	
+							</form>
+                                                     </Modal.Body>          
+                                                                 <Modal.Footer>
+                                                                                       <Button onClick={this.close}>Close</Button>
+                                                                                                 </Modal.Footer>
+                                                                                                         </Modal>
+ 
+    </div>
+  </div>
+
+     </div>
       
     );
   }
