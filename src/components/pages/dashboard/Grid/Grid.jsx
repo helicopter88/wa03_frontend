@@ -5,36 +5,19 @@ import Websocket from 'ws';
 var Grid = React.createClass({
   getInitialState: function() {
     return ({
+      details: ({}),
       elements: [],
       ws: new WebSocket("ws://webapps3.westeurope.cloudapp.azure.com:8080/")
     });
   },
     handleMessage: function(event) {
       var length =  sessionStorage.userName.length + 5;
-      if(event.data.indexOf("name") > -1) {
-        console.log(event.data.substring(5));
-        var j = JSON.parse(event.data.substring(5));
-        this.state.elements[j.sym].name = j.res;
-        console.log(this.state.elements[j.sym].name);
-      } 
-      if(event.data.indexOf("ask_price") > -1) {
-        console.log(event.data.substring(10));
-         var j = JSON.parse(event.data.substring(10));
-        this.state.elements[j.sym].ap = j.res;
-        console.log(this.state.elements[j.name].ap);
-      }
-      if(event.data.indexOf("bid_price") > -1) {
-        console.log(event.data.substring(10));
-        var j = JSON.parse(event.data.substring(10));
-        this.state.elements[j.sym].bp = j.res;
-        console.log(this.state.elements[j.name].bp);
-      }
       if(event.data.indexOf("ow") > -1) {
         var j = event.data.substring(length);
         var list = JSON.parse(j);
-        list.map(elem => this.state.ws.send("yahoo ask_price " + elem.instr));
-        list.map(elem => this.state.ws.send("yahoo bid_price " + elem.instr));
-        list.map(elem => this.state.ws.send("yahoo req_name  " + elem.instr));
+        //list.map(elem => this.state.ws.send("yahoo ask_price " + elem.instr));
+        //list.map(elem => this.state.ws.send("yahoo bid_price " + elem.instr));
+        //list.map(elem => this.state.ws.send("yahoo req_name  " + elem.instr));
         this.setState({
           elements: list
         });
@@ -70,7 +53,7 @@ var Grid = React.createClass({
                             {this.state.elements.map(elem =>
                   <ListGroupItem href="javascript:void(0)">
                    <i className="fa fa-money fa-fw"></i> {elem.instr}
-                   <span className="pull-right text-muted small"><em>{elem.amount}</em></span>
+                   <span className="pull-right text-muted small"><em>{elem.amount}   {elem.name} {elem.bp} {elem.ap} </em></span>
                  </ListGroupItem>
 
                                                        )}
