@@ -54,6 +54,7 @@ var Grid = React.createClass({
       if(event.data.indexOf("it_" + sessionStorage.userName) > -1) {
 	if (event.data.indexOf("false") > -1) {
 	  alert("Failed to execute transaction");
+	  this.setState({isLoading:false});
 	} else {
 	this.setState({ showModal:false});
 	this.state.ws.send("db get_owned " + sessionStorage.userName);

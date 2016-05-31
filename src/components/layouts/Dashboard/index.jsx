@@ -23,12 +23,13 @@ var HomePage = React.createClass({
 
   getInitialState: function(){
     
+    sessionStorage.help = false;
     return {
       uiElementsCollapsed: true,
       chartsElementsCollapsed: true,
       multiLevelDropdownCollapsed: true,
       thirdLevelDropdownCollapsed: true,
-      samplePagesCollapsed: true
+      samplePagesCollapsed: true,
     };
 
   },
@@ -40,6 +41,15 @@ var HomePage = React.createClass({
     else{
       $(".navbar-collapse").addClass('collapse');
     }
+  },
+
+  toggleHelp: function() {
+    if(sessionStorage.help) {
+	sessionStorage.help = false;
+    } else {
+	sessionStorage.help = true;
+    }   
+
   },
 
   render: function() {
@@ -54,6 +64,9 @@ var HomePage = React.createClass({
 		
 	   <div className="nav navbar-top-links navbar-right">
 	     <Nav style={ {margin: 10} }>
+		<Link to="dashboard.default">	
+			<Button bsStyle="info" onClick={this.toggleHelp}><i className="fa fa-question fa-fw"></i> Tooltips </Button>
+		</Link>
               
 		<Link to="login">
 			<Button bsStyle="danger"><i className="fa fa-power-off fa-fw"></i> Logout </Button>
@@ -75,7 +88,7 @@ var HomePage = React.createClass({
 		  </li>
                   
 		  <li>
-		    <Link to="dashboard.home"><i className="fa fa-bar-chart-o fa-fw"></i> Review </Link>
+		    <Link to="dashboard.tables"><i className="fa fa-bar-chart-o fa-fw"></i> Review </Link>
 		  </li>
 		
 		  <li>
