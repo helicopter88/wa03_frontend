@@ -8,7 +8,7 @@ var Grid = React.createClass({
       showModal: false,
       elements: [],
       buyQuantity: 0,
-      sellQuantity: [],
+      quickQuantity: [],
       symbol: "",
       isLoading: false,
       ws: new WebSocket("ws://webapps3.westeurope.cloudapp.azure.com:8080/")
@@ -22,10 +22,10 @@ var Grid = React.createClass({
 	this.setState({ buyQuantity: e.target.value}); 
   },
 
-  handleSellValue(e, elem) {
-    var arr = this.state.sellQuantity;
+  handleQuickValue(e, elem) {
+    var arr = this.state.quickQuantity;
     arr[elem] = e.target.value;	
-    this.setState({ sellQuantity: arr});
+    this.setState({ quickQuantity: arr});
 
   },
 
@@ -91,8 +91,8 @@ var Grid = React.createClass({
     
   },
 
-  sell: function(elem) {
-	this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + elem.instr + " " + elem.bp + " " + this.state.sellQuantity[elem.name] + " f"); 
+  quick: function(elem, c) {
+	this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + elem.instr + " " + elem.bp + " " + this.state.quickQuantity[elem.name] + " " + c); 
   },
   
 
@@ -123,7 +123,7 @@ var Grid = React.createClass({
                     <th>Amount</th>
                             <th>Bid price</th>
                             <th>Ask Price</th>
-			<th>Sell</th>
+			<th>Quick Transaction</th>
             </tr>
             </thead>
             <tbody>
@@ -132,18 +132,29 @@ var Grid = React.createClass({
                  <td>{elem.name} </td> <td>  {elem.amount} </td> <td> {elem.bp} </td> <td> {elem.ap} </td> 
 		
 		<td>
-		 <input type="number" 
-			value={this.state.sellQuantity[elem.name]} 
-			onChange={function (e) { self.handleSellValue(e, elem.name);}}>
+		 <input type="number"
+			placeholder="0" 
+			value={this.state.quickQuantity[elem.name]} 
+			onChange={function (e) { self.handleQuickValue(e, elem.name);}}>
 		</input>
 		<Button bsStyle="danger" bsSize="small" disabled={this.state.isLoading}
 		       	style={{marginLeft: 1 + 'em'}}
 		        onClick={function() {
 				self.setState({isLoading: true});
-				self.sell(elem);
+				self.quick(elem, 'f');
 			}}>
-		  {self.state.isLoading ? 'Selling...' : 'Sell'} {this.state.sellQuantity[elem.name]} of {elem.instr}
+		  {self.state.isLoading ? 'Selling...' : 'Sell'} {this.state.quickQuantity[elem.name]} of {elem.instr}
 		</Button>
+		<Button bsStyle="primary" bsSize="small" disabled={this.state.isLoading}
+		       	style={{marginLeft: 1 + 'em'}}
+		        onClick={function() {
+				self.setState({isLoading: true});
+				self.quick(elem, 't');
+			}}>
+		  {self.state.isLoading ? 'Buying...' : 'Buy'} {this.state.quickQuantity[elem.name]} of {elem.instr}
+		</Button>
+
+
 		</td>
                  </tr>
                 
@@ -166,7 +177,7 @@ var Grid = React.createClass({
 							<h4>Quantity below:</h4>
 							<input type="number" value={this.state.buyQuantity} onChange={this.handleBuyValue} placeholder="Quantity:"></input>
 							<br></br><br></br>
-							<Button bsStyle="success" onClick={!this.state.isLoading ? this.buyStocks : null}>{this.state.isLoading ? 'Buying... ' : 'Buy'} {this.state.buyQuantity} of {this.state.symbol}</Button>	
+							<Button bsStyle="primary" onClick={!this.state.isLoading ? this.buyStocks : null}>{this.state.isLoading ? 'Buying... ' : 'Buy'} {this.state.buyQuantity} of {this.state.symbol}</Button>	
 							</form>
                                                      </Modal.Body>          
                                                                  <Modal.Footer>
