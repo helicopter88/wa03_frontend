@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import {Modal, Input, Panel, PageHeader, ControlLabel, Table, Button, Form, FormGroup, FormControl} from 'react-bootstrap';
+import {Modal, Input, Panel, PageHeader, ControlLabel, Table, Button, Form, FormGroup, FormControl, Col} from 'react-bootstrap';
 import Websocket from 'ws';
 
 var Grid = React.createClass({
@@ -40,9 +40,7 @@ var Grid = React.createClass({
       if(event.data.indexOf("exists") > -1) {
         if(event.data.indexOf("true") > -1) {
         	this.state.ws.send("yahoo ask_price " + this.state.symbol);
-		//this.state.ws.send("db insert_trans " + sessionStorage.userName
-        }
-        else {
+        } else {
         	alert("No such symbol");
         }
       }
@@ -52,12 +50,19 @@ var Grid = React.createClass({
         this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + this.state.symbol + " " + price + " " + this.state.quantity + " t"); 
       }
       if(event.data.indexOf("it_" + sessionStorage.userName) > -1) {
-	if (event.data.indexOf("false") > -1) {
-	  alert("Failed to execute transaction");
-	  this.setState({isLoading:false});
-	} else {
-	this.setState({ showModal:false});
-	this.state.ws.send("db get_owned " + sessionStorage.userName);
+	
+	this.setState({isLoading:false});
+        if (event.data.indexOf("1") > -1) {
+	  alert("Negative amount of stocks is not allowed");
+        } else if  (event.data.indexOf("2") > -1) {
+          alert("Negative price is not allowed");
+        } else if (event.data.indexOf("3") > -1) {
+          alert("Wrong currency");
+        } else if(event.data.indexOf("-1") > -1) {
+          alert("Not enough funds or not enough shares");
+        } else {
+	  this.setState({ showModal:false});
+	  this.state.ws.send("db get_owned " + sessionStorage.userName);
 	}
       }
     },
@@ -96,7 +101,7 @@ var Grid = React.createClass({
           <div className="col-lg-12">
 
             <Panel>
-              <Button bsStyle="warning" onClick={this.openModal}>Buy</Button>
+		<Col className="pull-right"><Button pullRight bsStyle="primary" onClick={self.openModal} >Buy <i className="fa fa-plus"></i></Button></Col>
               <h3>Current holdings</h3>
               <div className="table-responsive">
                
@@ -115,7 +120,7 @@ var Grid = React.createClass({
             {this.state.elements.map(elem => <tr>
                  <td> {elem.instr} </td>
                  <td>{elem.name} </td> <td>  {elem.amount} </td> <td> {elem.bp} </td> <td> {elem.ap} </td> <td>  <input type="number" value={this.state.quantity} onChange={this.handleValue}></input><Button bsStyle="danger" bsSize="small" disabled={this.state.isLoading}
-       
+       	  style={{marginLeft: 1 + 'em'}} 
           onClick={function() {
 			self.setState({isLoading: true});
 			self.sell(elem);

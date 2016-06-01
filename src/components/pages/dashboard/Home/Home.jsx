@@ -141,7 +141,7 @@ var Home = React.createClass({
 
 	 </div>
         </div>
-
+	
 	<div className="col-lg-3">
 		
 		<Panel header={<div align="center">

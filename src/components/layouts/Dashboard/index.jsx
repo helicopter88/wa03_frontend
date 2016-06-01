@@ -1,7 +1,7 @@
 import React from "react";
 import Router, { Link, RouteHandler } from "react-router";
 
-import {Navbar, Nav, NavItem, NavDropdown, MenuItem, ProgressBar, Button} from "react-bootstrap";
+import {Navbar, Nav, NavItem, NavDropdown, MenuItem, ProgressBar, Button, Overlay, OverlayTrigger, Tooltip} from "react-bootstrap";
 import $ from "jquery";
 import classNames from "classnames";
 
@@ -23,13 +23,14 @@ var HomePage = React.createClass({
 
   getInitialState: function(){
     
-    sessionStorage.help = false;
+    sessionStorage.help = 'off';
     return {
       uiElementsCollapsed: true,
       chartsElementsCollapsed: true,
       multiLevelDropdownCollapsed: true,
       thirdLevelDropdownCollapsed: true,
       samplePagesCollapsed: true,
+      help: 'off'
     };
 
   },
@@ -44,28 +45,37 @@ var HomePage = React.createClass({
   },
 
   toggleHelp: function() {
-    if(sessionStorage.help) {
-	sessionStorage.help = false;
+    if(sessionStorage.help === 'on') {
+	sessionStorage.help = 'off';
     } else {
-	sessionStorage.help = true;
-    }   
-
+    	sessionStorage.help = 'on';
+    }
+    this.setState({help: sessionStorage.help});
   },
+
+  displayTip: function(bool, msg) {
+    if (bool) {
+	return (<Tooltip>  {msg}  </Tooltip>) ;
+    } else {
+	return (<div></div>);
+    }
+  },
+  
 
   render: function() {
 
     return (
         <div id="wrapper" className="content">
 
-          <Navbar brand={<span><a href="http://webapps3.westeurope.cloudapp.azure.com/frontend/build/#/dashboard" title="Summit Trading" rel="home"><img src="../src/common/img/LsummitLogoViolet.PNG"></img> Summit Trading</a>
+          <Navbar brand={<span><a href="http://webapps3.westeurope.cloudapp.azure.com/frontend/build/#/dashboard" title="Summit" rel="home"><img src="../src/common/img/LsummitLogoViolet.PNG"></img> Summit</a>
 		
  
            </span>} fluid={true}  style={ {margin: 0} }>
 		
 	   <div className="nav navbar-top-links navbar-right">
 	     <Nav style={ {margin: 10} }>
-		<Link to="dashboard.default">	
-			<Button bsStyle="info" onClick={this.toggleHelp}><i className="fa fa-question fa-fw"></i> Tooltips </Button>
+		<Link to="dashboard.default" onClick={this.toggleHelp} >	
+			<Button bsStyle="info" style={{marginRight: 1 + 'em'}}><i className="fa fa-question fa-fw"></i> Tooltips: {this.state.help}</Button>
 		</Link>
               
 		<Link to="login">
@@ -84,7 +94,9 @@ var HomePage = React.createClass({
                   </li>
 
 		  <li>
-		    <Link to="dashboard.grid"><i className="fa fa-briefcase fa-fw"></i> Portfolio </Link>
+		    <OverlayTrigger placement="right" overlay={this.displayTip(sessionStorage.help === 'on', <strong>Your portfolio keeps a record of all your instruments, and is also where you can buy more!</strong>)}> 
+			    <Link to="dashboard.grid"><i className="fa fa-briefcase fa-fw"></i> Portfolio </Link>
+		    </OverlayTrigger>
 		  </li>
                   
 		  <li>
