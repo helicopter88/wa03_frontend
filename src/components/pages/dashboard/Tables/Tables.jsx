@@ -1,10 +1,12 @@
 import React, { PropTypes, Component } from 'react';
-import {Image, Pagination, Panel, Well, Button, PageHeader, ListGroup, ListGroupItem} from "react-bootstrap";
+import {Image, Pagination, Panel, Well, ButtonToolbar, ButtonGroup, Button, PageHeader, ListGroup, ListGroupItem} from "react-bootstrap";
 import Websocket from 'ws';
 
 var Tables = React.createClass({
   getInitialState: function() {
     return ({
+      times: ['1D','5D','1M', '3M', '6M', '1Y', '2Y'],
+      time: '1y',
       stocks: [],
       stock: '',
       ws: new WebSocket("ws://webapps3.westeurope.cloudapp.azure.com:8080"),
@@ -54,9 +56,18 @@ var Tables = React.createClass({
           </div>
           </div>
           <div className="col-lg-9">
-        <img src={"https://chart.finance.yahoo.com/z?s="  + this.state.stock + "&t=1y&q=&l=&z=l&a=v&p=s"}/>
-          </div>
-                   
+            <div className="row">
+              <img src={"https://chart.finance.yahoo.com/z?s="  + this.state.stock + "&t=" + this.state.time +"&q=&l=&z=l&a=v&p=s"}/>
+            </div>
+            <div className="row" align="center"><span>
+              <ButtonToolbar>
+                <ButtonGroup>
+                  {this.state.times.map(elem => (<Button onClick={function() { self.setState({time: elem.toLowerCase()});}}> {elem} </Button>))}
+                </ButtonGroup>
+              </ButtonToolbar>
+                </span>
+            </div>
+            </div>     
             </Panel>
           </div>
 
