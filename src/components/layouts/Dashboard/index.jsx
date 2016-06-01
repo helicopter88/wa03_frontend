@@ -67,20 +67,25 @@ var HomePage = React.createClass({
     return (
         <div id="wrapper" className="content">
 
-          <Navbar brand={<span><a href="http://webapps3.westeurope.cloudapp.azure.com/frontend/build/#/dashboard" title="Summit" rel="home"><img src="../src/common/img/LsummitLogoViolet.PNG"></img> Summit</a>
+          <Navbar brand={<span><a href="http://webapps3.westeurope.cloudapp.azure.com/frontend/build/#/dashboard" title="Summit" rel="home"><img src="../src/common/img/LsummitLogoViolet.PNG"></img> Summit</a></span>} fluid={true}  style={ {margin: 0} }>
 		
+	  <div className="nav navbar-top-links navbar-right">
+	    <Nav style={ {margin: 10} }>	
+		<NavDropdown title=<i className="fa fa-gear fa-fw"></i> >
+		  <MenuItem divider />
+		  <MenuItem >
+		 	<Button block onClick={this.toggleHelp} bsStyle="info" style={{marginRight: 1 + 'em'}}><i className="fa fa-question fa-fw"></i> Tooltips: {this.state.help}</Button>
+		  </MenuItem>
  
-           </span>} fluid={true}  style={ {margin: 0} }>
-		
-	   <div className="nav navbar-top-links navbar-right">
-	     <Nav style={ {margin: 10} }>
-		<Link to="dashboard.default" onClick={this.toggleHelp} >	
-			<Button bsStyle="info" style={{marginRight: 1 + 'em'}}><i className="fa fa-question fa-fw"></i> Tooltips: {this.state.help}</Button>
-		</Link>
-              
+                  <MenuItem divider />
+                  <MenuItem eventKey="4">
+                    <Link to="login">
+                      <Button block bsStyle="danger"><i className="fa fa-power-off fa-fw"></i> Logout </Button>
+                    </Link>
+                  </MenuItem>
+                </NavDropdown>  
 		<Link to="login">
-			<Button bsStyle="danger"><i className="fa fa-power-off fa-fw"></i> Logout </Button>
-		</Link>
+					</Link>
              </Nav>
 	   </div>
 
@@ -100,12 +105,21 @@ var HomePage = React.createClass({
 		  </li>
                   
 		  <li>
-		    <Link to="dashboard.tables"><i className="fa fa-bar-chart-o fa-fw"></i> Review </Link>
+		    <OverlayTrigger placement="right" overlay={this.displayTip(sessionStorage.help === 'on', <strong>Go to review to see how your holdings are faring over time</strong>)}>
+			    <Link to="dashboard.tables"><i className="fa fa-bar-chart-o fa-fw"></i> Review </Link>
+		    </OverlayTrigger>
 		  </li>
 		
 		  <li>
-		    <Link to="dashboard.home"><i className="fa fa-question fa-fw"></i> Help </Link>
+		    <OverlayTrigger placement="right" overlay={this.displayTip(sessionStorage.help === 'on', <strong>Click here for further help the tooltips don't cover</strong>)}>
+			    <Link to="dashboard.home"><i className="fa fa-question fa-fw"></i> Help </Link>
+		    </OverlayTrigger>
 		  </li>
+		  
+	
+
+	
+		
                 </ul>
 
               </div>
@@ -113,6 +127,8 @@ var HomePage = React.createClass({
 
 
           </Navbar>
+
+
 
           <div id="page-wrapper" className="page-wrapper" ref="pageWrapper" style={{minHeight: this.state.Height}}>
             <RouteHandler {...this.props} />
