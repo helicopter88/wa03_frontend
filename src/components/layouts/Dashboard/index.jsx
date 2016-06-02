@@ -67,33 +67,36 @@ var HomePage = React.createClass({
     return (
         <div id="wrapper" className="content">
 
-          <Navbar brand={<span><a href="http://webapps3.westeurope.cloudapp.azure.com/frontend/build/#/dashboard" title="Summit" rel="home"><img src="../src/common/img/LsummitLogoViolet.PNG"></img> Summit</a></span>} fluid={true}  style={ {margin: 0} }>
+          <Navbar brand={<span><a href="http://webapps3.westeurope.cloudapp.azure.com/frontend/build/#/dashboard" style={{fontSize: 28 + 'px'}}  title="Summit" rel="home">
+		<img src="../src/common/img/LsummitLogoViolet.PNG" ></img> Summit</a> </span>} fluid={true}  style={ {margin: 0} }>
 		
 	  <div className="nav navbar-top-links navbar-right">
-	    <Nav style={ {margin: 10} }>	
+	    <Nav style={{margin:10}} >	
 		<NavDropdown title=<i className="fa fa-gear fa-fw"></i> >
-		  <MenuItem divider />
-		  <MenuItem >
-		 	<Button block onClick={this.toggleHelp} bsStyle="info" style={{marginRight: 1 + 'em'}}><i className="fa fa-question fa-fw"></i> Tooltips: {this.state.help}</Button>
-		  </MenuItem>
+		
+
+		 	<Button block onClick={this.toggleHelp} bsStyle="info" className="btn-outline" ><i className="fa fa-question fa-fw"></i> Tooltips: {this.state.help}</Button>
  
-                  <MenuItem divider />
-                  <MenuItem eventKey="4">
-                    <Link to="login">
-                      <Button block bsStyle="danger"><i className="fa fa-power-off fa-fw"></i> Logout </Button>
-                    </Link>
-                  </MenuItem>
-                </NavDropdown>  
-		<Link to="login">
-					</Link>
+                </NavDropdown> 
+
+		  <Link to="dashboard.buttons">
+			<Button  bsStyle="success" className="btn-outline"><i className="fa fa-user fa-fw"></i> My Profile</Button>
+		  </Link>
+
+		  <Link to="login">
+	      		 <Button className="btn-outline" bsStyle="danger"><i className="fa fa-power-off fa-fw"></i> Logout </Button>
+		  </Link>
+
+
+ 
              </Nav>
 	   </div>
 
  
             <div className="navbar-default sidebar" style={ { 'marginLeft': '-20px' } } role="navigation">
               <div className="sidebar-nav navbar-collapse">
-                
-                <ul className="nav in" id="side-menu">
+               <br></br> 
+                <ul className="nav in" id="side-menu" style={{fontSize: 'large'}}>
                   <li>
                     <Link to="dashboard.home"><i className="fa fa-home fa-fw"></i> Home </Link>
                   </li>

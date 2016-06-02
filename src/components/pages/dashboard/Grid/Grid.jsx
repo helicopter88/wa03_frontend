@@ -1,15 +1,19 @@
 import React, { PropTypes, Component } from 'react';
-import {Modal, Input, Panel, PageHeader, ControlLabel, Table, Button, Form, FormGroup, FormControl, Col} from 'react-bootstrap';
+import {Alert, Modal, Input, Panel, PageHeader, ControlLabel, Table, Button, Form, FormGroup, FormControl, Col} from 'react-bootstrap';
 import Websocket from 'ws';
 
 var Grid = React.createClass({
   getInitialState: function() {
     return ({
+      tstring: '',
+      capital: 0,
+      transactions: [],
       showModal: false,
       elements: [],
       buyQuantity: 0,
       quickQuantity: [],
       symbol: "",
+      showTransactionAlert: false,
       isLoading: false,
       ws: new WebSocket("ws://webapps3.westeurope.cloudapp.azure.com:8080/")
     });
@@ -26,7 +30,6 @@ var Grid = React.createClass({
     var arr = this.state.quickQuantity;
     arr[elem] = e.target.value;	
     this.setState({ quickQuantity: arr});
-
   },
 
     openModal: function() {
@@ -57,27 +60,43 @@ var Grid = React.createClass({
 	var price = parseFloat(msg.res);
         this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + this.state.symbol + " " + price + " " + this.state.buyQuantity + " t"); 
       }
+      if(event.data.indexOf("tr_") > -1) {
+        var j = JSON.parse(event.data.substring(length));
+        this.setState({transactions: j});
+      }
       if(event.data.indexOf("it_" + sessionStorage.userName) > -1) {
 	
 	this.setState({isLoading:false});
-        if (event.data.indexOf("1") > -1) {
+        if (event.data.indexOf("-6") > -1) {
 	  alert("Negative amount of stocks is not allowed");
-        } else if  (event.data.indexOf("2") > -1) {
+        } else if  (event.data.indexOf("-7") > -1) {
           alert("Negative price is not allowed");
-        } else if (event.data.indexOf("3") > -1) {
+        } else if (event.data.indexOf("-3") > -1) {
           alert("Wrong currency");
-        } else if (event.data.indexOf("4") > -1) {
+        } else if (event.data.indexOf("-2") > -1) {
           alert("Not enough capital");
         } else if(event.data.indexOf("-1") > -1) {
           alert("Not enough shares");
         } else {
-	  this.setState({ showModal:false});
+	  this.setState({ tstring: event.data.substring(length), showModal:false, showTransactionAlert: true});
 	  this.state.ws.send("db get_owned " + sessionStorage.userName);
+          this.state.ws.send("db get_capital " + sessionStorage.userName);
 	}
       }
+      if(event.data.indexOf("gc_") > -1) { 
+        this.setState({capital: event.data.substring(length)});
+      }
     },
+    
+    handleAlertDismiss: function() {
+      this.setState({showTransactionAlert: false});
+
+    },
+
     open: function() {
+      this.state.ws.send("db get_capital " + sessionStorage.userName);
       this.state.ws.send("db get_owned " + sessionStorage.userName);
+      this.state.ws.send("db get_all_trans " + sessionStorage.userName);
     },
     componentWillMount: function() {
       this.state.ws.addEventListener('open', this.open);
@@ -95,7 +114,15 @@ var Grid = React.createClass({
 	this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + elem.instr + " " + elem.bp + " " + this.state.quickQuantity[elem.name] + " " + c); 
   },
   
+  renderAlert: function() {
+  if (this.state.showTransactionAlert) {
+         return (<Alert bsStyle="warning" onDismiss={this.handleAlertDismiss}>
+           <h4>{this.state.tstring}</h4>
+           <p><Button onClick={this.handleAlertDismiss}>Dismiss</Button></p></Alert>);
 
+      }
+  },
+  
   render: function() {
     var self = this;
     return (
@@ -103,24 +130,27 @@ var Grid = React.createClass({
       <div>
         <div className="row">
           <div className="col-lg-12">
-            <PageHeader>Portfolio</PageHeader>
+            <PageHeader>Portfolio  - Your current capital is: {this.state.capital}</PageHeader>
           </div>
         </div>
 
         <div className="row">
           <div className="col-lg-12">
+{self.renderAlert()}
 
             <Panel>
-		<Col className="pull-right"><Button pullRight bsStyle="primary" onClick={self.openModal} >Buy <i className="fa fa-plus"></i></Button></Col>
+		
+              <Col className="pull-right"><Button pullRight bsStyle="primary" onClick={self.openModal} >Buy <i className="fa fa-plus"></i></Button></Col>
               <h3>Current holdings</h3>
-              <div className="table-responsive">
+              <div className="table-responsive" style={{overflow: "auto", height: 16 + 'em'}}>
                
-              <Table striped bordered condensed hover>
+                    <Table striped bordered condensed hover>
               <thead>
             <tr>           
             <th>Instrument</th>
                     <th>Name</th>
                     <th>Amount</th>
+                    <th>Avg Price</th>
                             <th>Bid price</th>
                             <th>Ask Price</th>
 			<th>Quick Transaction</th>
@@ -129,7 +159,7 @@ var Grid = React.createClass({
             <tbody>
             {this.state.elements.map(elem => <tr>
                  <td> {elem.instr} </td>
-                 <td>{elem.name} </td> <td>  {elem.amount} </td> <td> {elem.bp} </td> <td> {elem.ap} </td> 
+                 <td>{elem.name} </td> <td>  {elem.amount} </td> <td>{elem.avg}</td> <td> {elem.bp} </td> <td> {elem.ap} </td> 
 		
 		<td>
 		 <input type="number"
@@ -162,8 +192,41 @@ var Grid = React.createClass({
          </tbody>
         </Table>
         </div>
-        
+        </Panel>
+        </div>
+
+
+
+          <div className="col-lg-12">
+
+            <Panel>
+              <h3>Transaction history</h3>
+              <div className="table-responsive" style={{overflow: "auto", height: 16 + 'em'}}>
+               
+              <Table striped bordered condensed hover>
+              <thead>
+            <tr>           
+            <th>Instrument</th>
+                    <th>Amount</th>
+                            <th>Price</th>
+			<th>Type</th>
+                        <th>Time</th>
+            </tr>
+            </thead>
+            <tbody>
+            {this.state.transactions.map(elem => <tr>
+                 <td> {elem.instr_id} </td>
+                 <td>  {elem.amount} </td> <td> {elem.price} </td> <td> {(elem.type.indexOf('t') > -1) ? 'Buy' : 'Sell'} </td> <td> {elem.time.slice(0, elem.time.indexOf('.'))} </td></tr>)} 
+            </tbody>
+            </Table>
+           </div> 
+
       </Panel>
+      </div>
+
+
+
+
            <Modal show={this.state.showModal} onHide={this.close}>
                      <Modal.Header closeButton>
                                  <Modal.Title>Buy more instruments</Modal.Title>
@@ -185,7 +248,6 @@ var Grid = React.createClass({
                                                                                                  </Modal.Footer>
                                                                                                          </Modal>
  
-    </div>
   </div>
 
      </div>

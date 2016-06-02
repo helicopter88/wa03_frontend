@@ -86,7 +86,7 @@ var Home = React.createClass({
 
         <div className="row">
           <div className="col-lg-12">
-            <PageHeader>Hello {this.state.realName}</PageHeader>
+            <PageHeader>Hello, {this.state.realName}!</PageHeader>
           </div>
         </div>
 
