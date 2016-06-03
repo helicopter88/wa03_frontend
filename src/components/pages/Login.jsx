@@ -1,6 +1,6 @@
 import React from 'react';
 import Router from 'react-router';
-import {Panel, Input, Button} from 'react-bootstrap';
+import {FormControls, FormGroup, Modal, Panel, Input, Button} from 'react-bootstrap';
 import Websocket from 'ws';
 
 	
@@ -10,9 +10,15 @@ var LoginPage = React.createClass({
 
   getInitialState: function(){
     return {
+      name: '',
+      email: '',
+      username: '',
+      regPword: '',
+      currency: "",
       loginID: '',
       password: '',
       isSubmitted: false,
+      showRegistration: false,
       ws: new WebSocket('ws://webapps3.westeurope.cloudapp.azure.com:8080')
     };
   },
@@ -36,6 +42,36 @@ var LoginPage = React.createClass({
   
   mixins: [Router.Navigation],
 
+  openRegistration: function() {
+    this.setState({showRegistration: true});
+  },
+
+  hideRegistration: function() {
+    this.setState({showRegistration: false});
+  },
+
+  submitRegistration: function() {
+    var uName = this.state.username;
+    var name = this.state.name;
+    var pword = this.state.regPword;
+    var currency = this.state.currency;
+    this.state.ws.send("db insert_user " + uName + " " + pword + " " + name + " 10000 " + currency);  	  
+    location.reload();
+  },
+
+  handleUname: function(e) {
+    this.setState({username: e.target.value});
+
+  },
+
+  handlePword: function(e) {
+    this.setState({regPword: e.target.value});
+  },
+
+  handleName: function(e) {
+    this.setState({name: e.target.value});
+  },
+
   render: function(){
   
     return <div className="col-md-4 col-md-offset-4">
@@ -57,15 +93,56 @@ var LoginPage = React.createClass({
               <div className="form-group">
                 <Input onChange={this.setPassword} className="form-control" placeholder="Password" ref="password" type="password" name="password" />
               </div>
-              <Input type="checkbox" label="Remember Me" />
               <Button type="submit" bsSize="large" bsStyle="primary" block>Login</Button>
+	      <br></br>
+	      <Button bsSize="large" bsStyle="success" onClick={this.openRegistration}block>First Time? Click to register</Button>
               
             </fieldset>
           </form>
 
         </Panel>
         
-      </div>
+      
+
+      <Modal show={this.state.showRegistration} onHide={this.hideRegistration}>
+	<Modal.Header closeButton>
+	  <Modal.Title>Register now!</Modal.Title>
+	</Modal.Header>
+	<Modal.Body>
+	<div>
+	  <form >
+		  <div className="form-group">
+		  <h4>Username:</h4>
+		  <Input type="text" className="form-control" placeholder="Your username:" value={this.state.username} onChange={this.handleUname}></Input>
+		  
+		  <h4>Name:</h4>
+		  <Input type="text" className="form-control" placeholder="Your name here:" value={this.state.name} onChange={this.handleName}></Input>
+		  
+		  <h4>Your password:</h4>
+		  <Input type="password" placeholder="Your password:" value={this.state.regPword} onChange={this.handlePword}></Input>
+		  <h4>Finally, pick your preferred trading currency</h4>
+		  <Input type="select" placeholder="Select a currency" id={this.state.currency}>
+		    <option value="gbp">GBP</option>
+		    <option value="usd">USD</option>
+		  </Input>
+		  </div>
+		  <br></br>
+	  	  <Button bsStyle="success" bsSize="large" onClick={this.submitRegistration} >Submit</Button>
+	  </form>
+	</div>
+	</Modal.Body>
+	<Modal.Footer>
+	  <Button onClick={this.hideRegistration}>Close</Button>
+
+	</Modal.Footer>
+      </Modal>
+
+</div>
+
+
+
+
+
       
 
   },

@@ -73,13 +73,10 @@ var HomePage = React.createClass({
 	  <div className="nav navbar-top-links navbar-right">
 	    <Nav style={{margin:10}} >	
 		<NavDropdown title=<i className="fa fa-gear fa-fw"></i> >
-		
-
-		 	<Button block onClick={this.toggleHelp} bsStyle="info" className="btn-outline" ><i className="fa fa-question fa-fw"></i> Tooltips: {this.state.help}</Button>
- 
+		 	<MenuItem onSelect={this.toggleHelp}><i className="fa fa-question fa-fw"></i> Tooltips: {this.state.help}</MenuItem> 
                 </NavDropdown> 
 
-		  <Link to="dashboard.buttons">
+		  <Link to="dashboard.forms">
 			<Button  bsStyle="success" className="btn-outline"><i className="fa fa-user fa-fw"></i> My Profile</Button>
 		  </Link>
 
@@ -115,7 +112,7 @@ var HomePage = React.createClass({
 		
 		  <li>
 		    <OverlayTrigger placement="right" overlay={this.displayTip(sessionStorage.help === 'on', <strong>Click here for further help the tooltips don't cover</strong>)}>
-			    <Link to="dashboard.home"><i className="fa fa-question fa-fw"></i> Help </Link>
+			    <Link to="dashboard.typography"><i className="fa fa-question fa-fw"></i> Help </Link>
 		    </OverlayTrigger>
 		  </li>
 		  

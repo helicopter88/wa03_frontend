@@ -11,7 +11,7 @@ var Forms = React.createClass({
 
         <div className="row">
           <div className="col-lg-12">
-            <PageHeader>Forms</PageHeader>
+            <PageHeader>My Profile</PageHeader>
           </div>
         </div>
 

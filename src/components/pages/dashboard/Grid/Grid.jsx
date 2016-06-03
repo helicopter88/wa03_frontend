@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import {Alert, Modal, Input, Panel, PageHeader, ControlLabel, Table, Button, Form, FormGroup, FormControl, Col} from 'react-bootstrap';
+import {Tooltip, Overlay, OverlayTrigger, Alert, Modal, Input, Panel, PageHeader, ControlLabel, Table, Button, Form, FormGroup, FormControl, Col} from 'react-bootstrap';
 import Websocket from 'ws';
 
 var Grid = React.createClass({
@@ -30,6 +30,15 @@ var Grid = React.createClass({
     var arr = this.state.quickQuantity;
     arr[elem] = e.target.value;	
     this.setState({ quickQuantity: arr});
+  },
+
+  displayTip: function(bool, msg) {
+    if (bool) {
+	return (<Tooltip> {msg} </Tooltip>);
+    } else {
+	return (<div></div>);
+    } 
+
   },
 
     openModal: function() {
@@ -139,9 +148,14 @@ var Grid = React.createClass({
 {self.renderAlert()}
 
             <Panel>
-		
+	<OverlayTrigger placement="left" overlay={this.displayTip(sessionStorage.help === 'on', <strong>Click here to buy more stocks!</strong>)}>
+	
               <Col className="pull-right"><Button pullRight bsStyle="primary" onClick={self.openModal} >Buy <i className="fa fa-plus"></i></Button></Col>
+	</OverlayTrigger>	
+
+	<OverlayTrigger placement="left" overlay={this.displayTip(sessionStorage.help === 'on', <strong>These are the stocks you currently own</strong>)}>
               <h3>Current holdings</h3>
+	</OverlayTrigger>
               <div className="table-responsive" style={{overflow: "auto", height: 16 + 'em'}}>
                
                     <Table striped bordered condensed hover>
@@ -200,7 +214,10 @@ var Grid = React.createClass({
           <div className="col-lg-12">
 
             <Panel>
+	<OverlayTrigger placement="left" overlay={this.displayTip(sessionStorage.help === 'on', <strong>This displays all your past transactions</strong>)}>
+
               <h3>Transaction history</h3>
+	</OverlayTrigger>
               <div className="table-responsive" style={{overflow: "auto", height: 16 + 'em'}}>
                
               <Table striped bordered condensed hover>
