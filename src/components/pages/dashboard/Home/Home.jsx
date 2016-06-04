@@ -1,5 +1,7 @@
 import React, { PropTypes, Component } from 'react';
-import {NavDropdown, MenuItem, DropdownButton, Navbar, Nav, NavItem, Panel, PageHeader, ListGroup, ListGroupItem, Button, Overlay, OverlayTrigger, Tooltip} from "react-bootstrap";
+import {Alert, Input, Modal, NavDropdown, MenuItem, DropdownButton, Navbar, Nav, NavItem, Panel, PageHeader, ListGroup, ListGroupItem, Button, Overlay, OverlayTrigger, Tooltip} from "react-bootstrap";
+import Router from 'react-router';
+
 
 import StatWidget from "../../../common/StatWidget.js";
 
@@ -20,10 +22,16 @@ var Home = React.createClass({
                 upnl: 0,
                 total: 0,
 		rank: 0,
+		users: [],
+		newFollow: '',
+		showFollowers: false,
+		showFollowAlert: false,
 		ws: new WebSocket("ws://webapps3.westeurope.cloudapp.azure.com:8080/")
                 
 	});
   },
+
+  mixins: [Router.Navigation],
 
   open: function() {
     console.log("Connected");
@@ -35,26 +43,27 @@ var Home = React.createClass({
     this.state.ws.send("db get_upnl " + this.state.userName);
     this.state.ws.send("db get_total " + this.state.userName);
     this.state.ws.send("db get_rank " + this.state.userName);
+    this.state.ws.send("db get_followable_users " + this.state.userName);    
   },
 
   handleData: function(event) {
     var length =  this.state.userName.length + 5;
     var data = event.data;
-    if(data.indexOf("tp_" + this.state.userName) > -1) {
-      this.setState({ profit: parseFloat(data.substring(length)).toFixed(2)});
+    if(data.indexOf("get_profit") > -1) {
+      this.setState({ profit: parseFloat(data.substring(("get_profit: ").length)).toFixed(2)});
     }
-    if(data.indexOf("gc_" + this.state.userName) > -1) {
-      this.setState({ capital: parseFloat(data.substring(length)).toFixed(2)});
+    if(data.indexOf("get_capital") > -1) {
+      this.setState({ capital: parseFloat(data.substring(("get_capital: ").length)).toFixed(2)});
     }
-    if(data.indexOf("pl_" + this.state.userName) > -1) {
-      this.setState({ upnl: parseFloat(data.substring(length)).toFixed(2)});
+    if(data.indexOf("get_upnl") > -1) {
+      this.setState({ upnl: parseFloat(data.substring(("get_upnl: ").length)).toFixed(2)});
 
     }
-    if(data.indexOf("nm_" + this.state.userName) > -1) {
-      this.setState({realName: data.substring(length)});
+    if(data.indexOf("get_name") > -1) {
+      this.setState({realName: data.substring(("get_name: ").length)});
     }
-    if(data.indexOf("cr_" + this.state.userName) > -1) { 
-      this.setState({currency: data.substring(length)});
+    if(data.indexOf("get_currency") > -1) { 
+      this.setState({currency: data.substring(("get_currency: ").length)});
       var currency = this.state.currency;
       if (currency.indexOf("USD") > -1) {
         this.setState({currencyIcon: "fa fa-usd fa-5x"});
@@ -62,20 +71,26 @@ var Home = React.createClass({
         this.setState({currencyIcon: "fa fa-gbp fa-5x"});
       }
     }
-    if(data.indexOf("tt_" + this.state.userName) > -1) {
-      this.setState({ total: parseFloat(data.substring(length)).toFixed(2)});
+    if(data.indexOf("get_total") > -1) {
+      this.setState({ total: parseFloat(data.substring(("get_total: ").length)).toFixed(2)});
     }
-    if(data.indexOf("rk_" + this.state.userName) > -1) {
-      this.setState({ rank: data.substring(length)});
+    if(data.indexOf("get_rank") > -1) {
+      this.setState({ rank: data.substring(("get_rank: ").length)});
     }
     if(data.indexOf("get_leaderboard") > -1) {
       var lb = JSON.parse(data.substring("get_leaderboard: ".length));
-      lb.map(elem => console.log(elem));
       this.setState({ leaderboard: lb });
     }
+    if(data.indexOf("get_followable_users") > -1) {
+      var usrs = JSON.parse(data.substring("get_followable_users: ".length));
+      this.setState({ users: usrs});
+    }
   },
-  
+ 
   componentWillMount: function() {
+    if (!sessionStorage.userName) {
+      this.transitionTo('login');
+    }
     this.state.ws.addEventListener('open', this.open);
     this.state.ws.addEventListener('message', this.handleData);
   },	
@@ -86,6 +101,48 @@ var Home = React.createClass({
     } else {
 	return (<div></div>);
     }
+  },
+
+
+  handleNewFollow: function() {
+    console.log(this.state.userName + " is now following " + this.state.newFollow);
+    this.state.ws.send("db follow " + this.state.newFollow + " " + this.state.userName);
+    this.state.ws.send("db get_rank " + this.state.userName);
+    this.state.ws.send("db get_leaderboard profit " + this.state.userName);
+
+    this.setState({showFollowers: false});
+    this.setState({showFollowAlert: true});  
+  },
+
+  renderFollowAlert: function() {
+    console.log("BLOOP");
+    if (this.state.showFollowAlert) {
+         return (
+           <div className="text-center">
+           <Alert bsStyle="warning" onDismiss={this.dismissFollowAlert}>
+           <h4>You have just followed {this.state.newFollow}</h4>
+           <Button bsStyle="primary" onClick={this.dismissFollowAlert}>Ok</Button></Alert>
+           </div>);
+    }
+
+  },
+
+  dismissFollowAlert: function() {
+    this.setState({showFollowAlert: false});
+  },
+
+
+  showFollowers: function() {
+   
+    this.setState({showFollowers: true});
+  },
+
+  dismissFollowerModal: function() {
+    this.setState({showFollowers: false});
+  }, 
+
+  changeFollow: function(e) {
+    this.setState({newFollow: e.target.value});
   },
 
   render: function() {
@@ -166,28 +223,41 @@ var Home = React.createClass({
 	 </div>
         </div>
 	
-	<div className="col-lg-3">
-		
-		<Panel header={<div align="center">
-              <i className="fa fa-bar-chart fa-fw"></i> Profit Leaderboards  <Button bsStyle="success" style={{marginLeft: 3.85 + 'em'}}>Follow <i className="fa fa-plus-square fa-fw"></i></Button>
-              </div>}>
-              <ListGroup>
-               {this.state.leaderboard.map(elem => 
-                <ListGroupItem><i className="fa fa-user fa-fw"></i> {elem.user}
-                  <span className="pull-right text-muted small"><em>{parseFloat(elem.profit).toFixed(2)}</em></span>
-                </ListGroupItem>)}
-                
-              </ListGroup>
-            </Panel>
-
+	<div className="col-lg-3">	
+	  <Panel header={<div >
+            <i className="fa fa-bar-chart fa-fw"></i> Profit Leaderboards <div className="pull-right" style={{marginTop: -6 + 'px'}}> <Button bsStyle="success" onClick={this.showFollowers}>Follow <i className="fa fa-plus-square fa-fw"></i></Button></div>
+            </div>}>
+            <ListGroup>
+              {this.state.leaderboard.map(elem => 
+              <ListGroupItem><i className="fa fa-user fa-fw"></i> {elem.user}
+                <span className="pull-right text-muted small"><em>{parseFloat(elem.profit).toFixed(2)}</em></span>
+              </ListGroupItem>)}    
+            </ListGroup>
+	  </Panel>
 	</div>
 
+		
+	<Modal bsStyle="danger" show={this.state.showFollowers} onHide={this.dismissFollowerModal}>
+	<Modal.Header>
+	  <h2> Follow someone!</h2>
+	</Modal.Header>
+	<Modal.Body>
+           <h4>Following someone will cost you 10 {this.state.currency}. Select a user from the list below to start following their progress.</h4>
+	   <Input type="select" placeholder="Select a user to follow" onChange={this.changeFollow} id={this.state.newFollow}>
+		   {this.state.users.map(elem =>(<option value={elem}>{elem}</option>))}
+	   </Input>
+ 
+           <p><Button bsStyle="primary" onClick={this.handleNewFollow}>Follow</Button>
+           <Button style={{marginLeft: 10 + 'px'}} onClick={this.dismissFollowerModal}>Close</Button></p>
+	</Modal.Body>
+	</Modal>
+	
 	<div className="row">
-
+	  {this.renderFollowAlert()}
 	
 	</div>
 
-            
+        
      </div>
     );
   }

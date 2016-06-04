@@ -49,8 +49,8 @@ var Grid = React.createClass({
 
     handleMessage: function(event) {
       var length =  sessionStorage.userName.length + 5;
-      if(event.data.indexOf("ow") > -1) {
-        var j = event.data.substring(length);
+      if(event.data.indexOf("get_owned") > -1) {
+        var j = event.data.substring(("get_owned: ").length);
         var list = JSON.parse(j);
         this.setState({
           isLoading: false,
@@ -67,14 +67,14 @@ var Grid = React.createClass({
       if(event.data.indexOf("ask_price") > -1) {
 	var msg = JSON.parse(event.data.substring(10));
 	var price = parseFloat(msg.res);
-        this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + this.state.symbol + " " + price + " " + this.state.buyQuantity + " t"); 
+        this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + this.state.symbol + " " + this.state.buyQuantity + " t"); 
       }
-      if(event.data.indexOf("tr_") > -1) {
-        var j = JSON.parse(event.data.substring(length));
+      if(event.data.indexOf("get_all_trans") > -1) {
+        var j = JSON.parse(event.data.substring(("get_all_trans: ").length));
         this.setState({transactions: j});
       }
-      if(event.data.indexOf("it_" + sessionStorage.userName) > -1) {
-	
+      if(event.data.indexOf("insert_trans") > -1) {
+	console.log("HALLO");	
 	this.setState({isLoading:false});
         if (event.data.indexOf("-6") > -1) {
 	  alert("Negative amount of stocks is not allowed");
@@ -87,13 +87,13 @@ var Grid = React.createClass({
         } else if(event.data.indexOf("-1") > -1) {
           alert("Not enough shares");
         } else {
-	  this.setState({ tstring: event.data.substring(length), showModal:false, showTransactionAlert: true});
+	  this.setState({ tstring: event.data.substring(("insert_trans: ").length), showModal:false, showTransactionAlert: true});
 	  this.state.ws.send("db get_owned " + sessionStorage.userName);
           this.state.ws.send("db get_capital " + sessionStorage.userName);
 	}
       }
-      if(event.data.indexOf("gc_") > -1) { 
-        this.setState({capital: event.data.substring(length)});
+      if(event.data.indexOf("get_capital") > -1) { 
+        this.setState({capital: event.data.substring(("get_capital: ").length)});
       }
     },
     
@@ -120,7 +120,7 @@ var Grid = React.createClass({
   },
 
   quick: function(elem, c) {
-	this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + elem.instr + " " + elem.bp + " " + this.state.quickQuantity[elem.name] + " " + c); 
+	this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + elem.instr + " " + this.state.quickQuantity[elem.name] + " " + c); 
   },
   
   renderAlert: function() {
@@ -145,7 +145,7 @@ var Grid = React.createClass({
 
         <div className="row">
           <div className="col-lg-12">
-{self.renderAlert()}
+		{self.renderAlert()}
 
             <Panel>
 	<OverlayTrigger placement="left" overlay={this.displayTip(sessionStorage.help === 'on', <strong>Click here to buy more stocks!</strong>)}>

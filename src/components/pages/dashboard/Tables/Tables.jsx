@@ -14,13 +14,12 @@ var Tables = React.createClass({
   },
  
     open: function() {
-      console.log("Hello");
       this.state.ws.send("db get_owned " + sessionStorage.userName);
     },
 
     handleMessage: function(event) {
       console.log(event.data);
-      var j = event.data.substring(sessionStorage.userName.length + 5);
+      var j = event.data.substring(("get_owned: ").length);
       var list = JSON.parse(j);
       var arr = []; 
       list.map(elem => arr.push(elem.instr));

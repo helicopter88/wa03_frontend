@@ -81,7 +81,7 @@ var HomePage = React.createClass({
 		  </Link>
 
 		  <Link to="login">
-	      		 <Button className="btn-outline" bsStyle="danger"><i className="fa fa-power-off fa-fw"></i> Logout </Button>
+	      		 <Button onClick={function() {sessionStorage.removeItem('userName');}} className="btn-outline" bsStyle="danger"><i className="fa fa-power-off fa-fw"></i> Logout </Button>
 		  </Link>
 
 

@@ -28,11 +28,20 @@ var LoginPage = React.createClass({
     },
     
     handleData: function(event) {
-      if(event.data.indexOf("true") > -1) {
-	sessionStorage.setItem("userName", this.state.loginID);
-        this.transitionTo('dashboard');
-      } else {
-        alert('Wrong username/password');
+      if(event.data.indexOf("login") > -1) {
+        if(event.data.indexOf("true") > -1) {
+		sessionStorage.setItem("userName", this.state.loginID);
+        	this.transitionTo('dashboard');
+        } else {
+        	alert('Wrong username/password');
+        }
+      }
+      if(event.data.indexOf("insert_user") > -1) {
+          if(event.data.indexOf("true") > -1) {
+            alert("Successful registration!");
+          } else {
+            alert("An error occurred during your registration. Please try again");
+          }
       }
     },
     componentWillMount: function() {
@@ -70,6 +79,10 @@ var LoginPage = React.createClass({
 
   handleName: function(e) {
     this.setState({name: e.target.value});
+  },
+
+  handleCurrency: function(e) {
+    this.setState({currency: e.target.value});
   },
 
   render: function(){
@@ -121,9 +134,9 @@ var LoginPage = React.createClass({
 		  <h4>Your password:</h4>
 		  <Input type="password" placeholder="Your password:" value={this.state.regPword} onChange={this.handlePword}></Input>
 		  <h4>Finally, pick your preferred trading currency</h4>
-		  <Input type="select" placeholder="Select a currency" id={this.state.currency}>
-		    <option value="gbp">GBP</option>
-		    <option value="usd">USD</option>
+		  <Input type="select" placeholder="Select a currency" onChange={this.handleCurrency} id={this.state.currency}>
+		    <option value="GPB">GBP</option>
+		    <option value="USD">USD</option>
 		  </Input>
 		  </div>
 		  <br></br>

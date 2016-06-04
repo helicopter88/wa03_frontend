@@ -1,10 +1,145 @@
 import React, { PropTypes, Component } from 'react';
-import {Panel, Button, Input, Label, FormControls, Row, Col, PageHeader} from 'react-bootstrap';
+import {Alert, ListGroup, ListGroupItem, Tabs, Tab, Panel, Button, Input, Label, FormControls, Row, Col, PageHeader} from 'react-bootstrap';
+
+import Websocket from 'ws';
+import Router from 'react-router';
 
 var Forms = React.createClass({
 
+  getInitialState: function() {
+	return({
+		userName: sessionStorage.userName,
+		newName: '',
+		newEmail: '',
+		newPword: '',
+		leaderboard: [],
+		followers: [],
+		showResetAlert: false,
+		showDeleteAlert: false,
+		ws: new WebSocket("ws://webapps3.westeurope.cloudapp.azure.com:8080/")
+	});
+
+  },
+
+  
+  mixins: [Router.Navigation],
+
+  open: function() {
+	console.log("Connected");
+  	this.state.ws.send("db get_leaderboard profit " + this.state.userName);
+	//this.state.ws.send("db get_followers " + this.state.userName);
+  },
+
+  handleData: function(event) {
+	var data = event.data;
+
+	if(data.indexOf("get_followers") > -1) {
+	  //var follows = JSON.parse(data.substring("get_followers: ".length));
+	  //this.setState({followers: follows}); 
+	}
+
+	if(data.indexOf("get_leaderboard") > -1) {
+	  var lb = JSON.parse(data.substring("get_leaderboard: ".length));
+	  this.setState({ leaderboard: lb });
+	}
+  },
+
+  componentWillMount: function() {
+	if (!sessionStorage.userName) {
+	  this.transitionTo('login');
+	}
+	this.state.ws.addEventListener('open', this.open);
+	this.state.ws.addEventListener('message', this.handleData);
+  },
+
+  handleName: function(e) {
+	this.setState({newName: e.target.value });
+  },
+
+  handleEmail: function(e) {
+	this.setState({newEmail: e.target.value });
+  },
+
+  handlePword: function(e) {
+	this.setState({newPword: e.target.value });
+  },
+
+  saveChanges: function(e) {
+	var userName = this.state.userName;
+	var newName = this.state.newName;
+	var newEmail = this.state.newEmail;
+	var newPword = this.state.newPword;
+	if (newName !== '') {
+	// DB requests to change stuff here
+	  //this.state.ws.send("db update_name" + userName + " " + newName);
+	}
+	if (newEmail !== '') {
+	  //this.state.ws.send("db update_email" + userName + " " + newEmail);
+	}
+	if (newPword !== '') {
+	  //this.state.ws.send("db update_pword" + userName + " " + newPword);
+	}
+
+  },
+
+  showResetAlert: function() {
+    this.setState({showResetAlert: true});
+  },
+
+  showDeleteAlert: function() {
+    this.setState({showDeleteAlert: true});
+  },
+
+  dismissResetAlert: function() {
+    this.setState({showResetAlert: false});
+  },
+
+  dismissDeleteAlert: function() {
+    this.setState({showDeleteAlert: false});
+  },
+
+
+  handleReset: function() {
+    console.log("Account reset");
+    var userName = this.state.userName;
+    //this.state.ws.send("db reset_acc" + userName);
+  },
+
+  handleDelete: function() {
+    console.log("Account Delete");
+    var userName = this.state.userName;
+    //this.state.ws.send("db delete_acc" + userName);
+  },
+
+
+  renderResetAlert: function() {
+    if (this.state.showResetAlert) {
+         return (
+	   <div className="text-center">
+	   <Alert bsStyle="danger" onDismiss={this.dismissResetAlert}>
+           <h4>You are about to reset your account. This action cannot be reversed. Are you sure?</h4>
+	   <p><Button bsStyle="warning" onClick={this.handleReset}>Yes, reset my account</Button>
+           <Button bsStyle="primary" style={{marginLeft: 10 + 'px'}} onClick={this.dismissResetAlert}>No, dismiss</Button></p></Alert>
+	   </div>);
+    }
+  },
+
+
+  renderDeleteAlert: function() {
+    if (this.state.showDeleteAlert) {
+         return (
+	   <div className="text-center">
+	   <Alert bsStyle="danger" onDismiss={this.dismissDeleteAlert}>
+           <h4>You are about to delete your account. This action cannot be reversed. Are you sure?</h4>
+	   <p><Button bsStyle="warning" onClick={this.handleDelete}>Yes, delete my account</Button>
+           <Button bsStyle="primary" style={{marginLeft: 10 + 'px'}} onClick={this.dismissDeleteAlert}>No, dismiss</Button></p></Alert>
+	   </div>);
+    }
+  },
+
+
   render: function() {
-    
+    var self = this; 
     return (
 
       <div>
@@ -15,106 +150,79 @@ var Forms = React.createClass({
           </div>
         </div>
 
-        <div className="row">
+
+	<div className="row">
           <div className="col-lg-12">
+              <Tabs defaultActiveKey={1}>
+                <Tab eventKey={1} title="Profile Details">
+		  <div className="col-lg-8">
+		  <form>
+	                  <h2>Change your on screen name</h2>
+			  <Input type="text" addonBefore="Abc" onChange={this.handleName} value={this.state.newName} placeholder="Your new name:" />
+			  <h2>Change your email</h2>
+			  <Input type="email" addonBefore="@" onChange={this.handleEmail} value={this.state.newEmail} placeholder="Your new email address:" />
+			  <h2>Change your password</h2>
+			  <Input type="password" addonBefore={<i className="fa fa-key"></i>} onChange={this.handlePword} value={this.state.newPword} placeholder="New password" />
+			  <Button bsSize="large" onClick={this.saveChanges} bsStyle="success">Save my changes</Button>
+		  </form>
+		  </div>
+                </Tab>
 
-            <Panel header={<span>Basic Form Elements</span>} >
-              <div className="row">
-                <div className="col-lg-6">
-                  <form>
-                    <Input type="text" label="Text Input" help="Example block-level help text here." />
-                    <Input type="text" label="Text Input with Placeholder" placeholder="Enter text" />
-                    <FormControls.Static label="Static Control">email@example.com</FormControls.Static>
-                    <Input type="file" label="File Input" />
-                    <Input type="textarea" label="Text area" rows="3" />
-                    <h5><strong>Checkboxes</strong></h5>
-                    <Input type="checkbox" label="Checkbox 1" />
-                    <Input type="checkbox" label="Checkbox 2" />
-                    <Input type="checkbox" label="Checkbox 3" />
-                                
-                    <Row>
-                      <Col xs={4}>
-                        <h5><strong>Inline Checkboxes</strong></h5>
-                      </Col>
-                      <Col xs={1}>
-                        <Input type="checkbox" label="1" />
-                      </Col>
-                      <Col xs={1}>
-                        <Input type="checkbox" label="2" />
-                      </Col>
-                      <Col xs={1}>
-                        <Input type="checkbox" label="3" />
-                      </Col>
-                    </Row>
-                                    
-                    <h5><strong>Radio Buttons</strong></h5>
-                    <Input type="radio" label="Radio 1" />
-                    <Input type="radio" label="Radio 2" />
-                    <Input type="radio" label="Radio 3" />
-                                    
-                    <Row>
-                      <Col xs={4}>
-                        <h5><strong>Inline Radio Buttons</strong></h5>
-                      </Col>
-                      <Col xs={1}>
-                        <Input type="radio" label="1" />
-                      </Col>
-                      <Col xs={1}>
-                        <Input type="radio" label="2" />
-                      </Col>
-                      <Col xs={1}>
-                        <Input type="radio" label="3" />
-                      </Col>
-                    </Row>
-                                    
-                    <Input type="select" label="Select" placeholder="select">
-                      <option value="1">1</option>
-                      <option value="1">2</option>
-                      <option value="1">3</option>
-                      <option value="1">4</option>
-                      <option value="1">5</option>
-                    </Input>
-                    <Input type="select" label="Multiple Selects" multiple>
-                      <option value="1">1</option>
-                      <option value="1">2</option>
-                      <option value="1">3</option>
-                      <option value="1">4</option>
-                      <option value="1">5</option>
-                    </Input>
-                    <Button type="submit">Submit Button</Button>
-                    <Button type="reset">Reset Button</Button>
-                  </form>
-                </div>
 
-                <div className="col-lg-6">
-                  <h1>Disabled Form States</h1>
-                  <form>
-                    <Input type="text" label="Disabled input" placeholder="Disabled input" disabled />
-                    <Input type="select" label="Disabled select menu" disabled>
-                      <option>Disabled select</option>
-                    </Input>
-                    <Input type="checkbox" label="Disabled Checkbox" disabled />
-                    <Button bsStyle="primary" type="submit" disabled>Disabled Button</Button>
-                  </form>
-                  <h1>Form Validation States</h1>
-                  <form>
-                    <Input type="text" label="Input with success" bsStyle="success" />
-                    <Input type="text" label="Input with warning" bsStyle="warning" />
-                    <Input type="text" label="Input with error" bsStyle="error" />
-                  </form>
-                  <h1>Input Groups</h1>
-                  <form>
-                    <Input type="text" addonBefore="@" placeholder="Username" />
-                    <Input type="text" addonAfter=".00" />
-                    <Input type="text" addonBefore=<i className="fa fa-eur"></i> placeholder="Font Awesome Icon" />
-                    <Input type="text" addonBefore="$" addonAfter=".00" />
-                    <Input type="text" buttonAfter= <Button><i className="fa fa-search"></i></Button> />
-                  </form>
-                </div>
-              </div>
-            </Panel>
+                <Tab eventKey={2} title="Followers">
+                  <h2>See who is following you, and who you follow</h2>
+		      <div className="row">
+	              <div className="col-lg-8">
+		        <Panel header={<div align="center"><i className="fa fa-bar-chart fa-fw"></i>Profit Leaderboard</div>}>
+	                <ListGroup>
+          	          {this.state.leaderboard.map(elem =>
+	                  <ListGroupItem><i className="fa fa-user fa-fw"></i> {elem.user}
+          	            <span className="pull-right"><em>{parseFloat(elem.profit).toFixed(2)}</em></span>
+	                  </ListGroupItem>)}
+	                </ListGroup>
+		        </Panel>
+		      </div>
+	            </div>
+		    <div className="row">
+		      <div className="col-lg-8">
+		        <Panel header={<div align="center"><i className="fa fa-bar-chart fa-fw"></i>Your Followers</div>}>
+	                <ListGroup>
+          	          {this.state.followers.map(elem =>
+	                  <ListGroupItem><i className="fa fa-user fa-fw"></i> {elem.user}
+	                  </ListGroupItem>)}
+	                </ListGroup>
+		        </Panel>
+	              </div>
+		    </div>
+                </Tab>
+
+                <Tab eventKey={3} title="Messages & Trades">
+                  <h2>Messages, Active and Past trade requests</h2>
+                </Tab>
+                
+		<Tab eventKey={4} title="Settings">
+                  <h2>Settings</h2>
+		  <br></br>
+		  <div className="col-lg-8">
+		  <strong><h3 className="text-danger"> Reset profile</h3></strong>
+		  <strong><p>Resetting your account will restart your progress. This will delete all your followers, reset your capital to its initial value and you will lose all the profits you have made so far. You will start again from no stocks.</p></strong>
+		  <Button bsStyle="danger" onClick={this.showResetAlert}>Click here to reset your profile</Button>
+
+		  <br></br>
+		  <strong><h3 className="text-danger">Delete account</h3></strong>
+		  <strong><p>This will permanently delete your account and wipe all the information related to it. This action cannot be reverted.</p></strong>
+		  <Button bsStyle="danger" onClick={this.showDeleteAlert}>Click here to permanently delete your profile</Button>
+		  <br></br><br></br>
+		  {self.renderResetAlert()}
+		  {self.renderDeleteAlert()}
+		  </div>
+                </Tab>
+
+            </Tabs>
           </div>
-        </div>
+	</div>
+
+
       </div>
       
     );
