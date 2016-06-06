@@ -90,7 +90,8 @@ var Grid = React.createClass({
 	  this.setState({ tstring: event.data.substring(("insert_trans: ").length), showModal:false, showTransactionAlert: true});
 	  this.state.ws.send("db get_owned " + sessionStorage.userName);
           this.state.ws.send("db get_capital " + sessionStorage.userName);
-	}
+	  this.state.ws.send("db get_all_trans " + sessionStorage.userName);
+        }
       }
       if(event.data.indexOf("get_capital") > -1) { 
         this.setState({capital: event.data.substring(("get_capital: ").length)});
