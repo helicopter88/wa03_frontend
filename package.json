@@ -72,6 +72,7 @@
     "tls": "0.0.1",
     "ws": "~1.1.0",
     "bufferutil": "~1.2.1",
-    "utf-8-validate": "~1.2.1"
+    "utf-8-validate": "~1.2.1",
+    "react-loader": "~1.4.0"
   }
 }

@@ -10,7 +10,6 @@ var Forms = React.createClass({
 	return({
 		userName: sessionStorage.userName,
 		newName: '',
-		newEmail: '',
 		newPword: '',
 		leaderboard: [],
 		followers: [],
@@ -27,15 +26,16 @@ var Forms = React.createClass({
   open: function() {
 	console.log("Connected");
   	this.state.ws.send("db get_leaderboard profit " + this.state.userName);
-	//this.state.ws.send("db get_followers " + this.state.userName);
+	this.state.ws.send("db get_followers " + this.state.userName);
   },
 
   handleData: function(event) {
 	var data = event.data;
 
 	if(data.indexOf("get_followers") > -1) {
-	  //var follows = JSON.parse(data.substring("get_followers: ".length));
-	  //this.setState({followers: follows}); 
+	  var follows = JSON.parse(data.substring("get_followers: ".length));
+	  follows.map(elem => console.log(elem));
+	  this.setState({followers: follows}); 
 	}
 
 	if(data.indexOf("get_leaderboard") > -1) {
@@ -56,9 +56,6 @@ var Forms = React.createClass({
 	this.setState({newName: e.target.value });
   },
 
-  handleEmail: function(e) {
-	this.setState({newEmail: e.target.value });
-  },
 
   handlePword: function(e) {
 	this.setState({newPword: e.target.value });
@@ -67,17 +64,13 @@ var Forms = React.createClass({
   saveChanges: function(e) {
 	var userName = this.state.userName;
 	var newName = this.state.newName;
-	var newEmail = this.state.newEmail;
 	var newPword = this.state.newPword;
 	if (newName !== '') {
 	// DB requests to change stuff here
-	  //this.state.ws.send("db update_name" + userName + " " + newName);
-	}
-	if (newEmail !== '') {
-	  //this.state.ws.send("db update_email" + userName + " " + newEmail);
+	  this.state.ws.send("db update_name" + userName + " " + newName);
 	}
 	if (newPword !== '') {
-	  //this.state.ws.send("db update_pword" + userName + " " + newPword);
+	  this.state.ws.send("db update_pword" + userName + " " + newPword);
 	}
 
   },
@@ -102,13 +95,13 @@ var Forms = React.createClass({
   handleReset: function() {
     console.log("Account reset");
     var userName = this.state.userName;
-    //this.state.ws.send("db reset_acc" + userName);
+    this.state.ws.send("db reset_acc" + userName);
   },
 
   handleDelete: function() {
     console.log("Account Delete");
     var userName = this.state.userName;
-    //this.state.ws.send("db delete_acc" + userName);
+    this.state.ws.send("db delete_acc" + userName);
   },
 
 
@@ -188,7 +181,7 @@ var Forms = React.createClass({
 		        <Panel header={<div align="center"><i className="fa fa-bar-chart fa-fw"></i>Your Followers</div>}>
 	                <ListGroup>
           	          {this.state.followers.map(elem =>
-	                  <ListGroupItem><i className="fa fa-user fa-fw"></i> {elem.user}
+	                  <ListGroupItem><i className="fa fa-user fa-fw"></i> {elem}
 	                  </ListGroupItem>)}
 	                </ListGroup>
 		        </Panel>

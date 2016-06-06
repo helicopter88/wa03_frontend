@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import {Panel, Alert, Button, OverlayTrigger, Tooltip, Popover, Modal, PageHeader} from 'react-bootstrap';
-
+import Chat from '../../Chat.jsx';
 var Notifications = React.createClass({
 
 
@@ -34,7 +34,7 @@ var Notifications = React.createClass({
         </div>
 
         <div className="row">
-
+            <Chat> </Chat>
             <div className="col-lg-6">
               <Panel header={<span>Alert Styles</span>} >
                 <Alert bsStyle="success">

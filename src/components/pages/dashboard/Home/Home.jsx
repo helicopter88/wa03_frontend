@@ -1,7 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import {Alert, Input, Modal, NavDropdown, MenuItem, DropdownButton, Navbar, Nav, NavItem, Panel, PageHeader, ListGroup, ListGroupItem, Button, Overlay, OverlayTrigger, Tooltip} from "react-bootstrap";
 import Router from 'react-router';
-
+import Loader from 'react-loader';
 
 import StatWidget from "../../../common/StatWidget.js";
 
@@ -26,6 +26,7 @@ var Home = React.createClass({
 		newFollow: '',
 		showFollowers: false,
 		showFollowAlert: false,
+		loaded: false,
 		ws: new WebSocket("ws://webapps3.westeurope.cloudapp.azure.com:8080/")
                 
 	});
@@ -60,7 +61,7 @@ var Home = React.createClass({
 
     }
     if(data.indexOf("get_name") > -1) {
-      this.setState({realName: data.substring(("get_name: ").length)});
+      this.setState({realName: data.substring(("get_name: ").length), loaded: true});	
     }
     if(data.indexOf("get_currency") > -1) { 
       this.setState({currency: data.substring(("get_currency: ").length)});
@@ -105,17 +106,15 @@ var Home = React.createClass({
 
 
   handleNewFollow: function() {
-    console.log(this.state.userName + " is now following " + this.state.newFollow);
     this.state.ws.send("db follow " + this.state.newFollow + " " + this.state.userName);
     this.state.ws.send("db get_rank " + this.state.userName);
     this.state.ws.send("db get_leaderboard profit " + this.state.userName);
-
+    this.state.ws.send("db get_followable_users " + this.state.userName); 
     this.setState({showFollowers: false});
     this.setState({showFollowAlert: true});  
   },
 
   renderFollowAlert: function() {
-    console.log("BLOOP");
     if (this.state.showFollowAlert) {
          return (
            <div className="text-center">
@@ -151,10 +150,15 @@ var Home = React.createClass({
 
         <div className="row">
           <div className="col-lg-12">
+	    <Loader loaded={this.state.loaded}>
             <PageHeader>Hello, {this.state.realName}!</PageHeader>
-          </div>
+	    </Loader>
+	              </div>
         </div>
-
+	<div className="row">
+	  {this.renderFollowAlert()}
+	
+	</div>
 
 	<div className="col-lg-9">
 	 <div className="row">
@@ -184,7 +188,9 @@ var Home = React.createClass({
                     linkTo="dashboard.tables" />
           </div>
 	</OverlayTrigger>
-	 </div>	
+	 </div>
+
+	
 	 <div className="row">
 	<OverlayTrigger placement="bottom" overlay={this.displayTip(sessionStorage.help === 'on', <strong>This is the money you have made since you started the game</strong>)}>	
   
@@ -222,10 +228,16 @@ var Home = React.createClass({
 	</OverlayTrigger>
 	 </div>
         </div>
+
 	
-	<div className="col-lg-3">	
+	<div className="col-lg-3">
+
+	<OverlayTrigger placement="top" overlay={this.displayTip(sessionStorage.help === 'on', <strong> Following someone will cost you 10 {this.state.currency}, but you will be able to see the transactions of successful people!</strong>)}>
+	<Button bsStyle="success" block bsSize="large" onClick={this.showFollowers} className="btn-outline">Follow someone <i className="fa fa-plus-square fa-fw"></i></Button>	
+	</OverlayTrigger>
+
 	  <Panel header={<div >
-            <i className="fa fa-bar-chart fa-fw"></i> Profit Leaderboards <div className="pull-right" style={{marginTop: -6 + 'px'}}> <Button bsStyle="success" onClick={this.showFollowers}>Follow <i className="fa fa-plus-square fa-fw"></i></Button></div>
+            <i className="fa fa-bar-chart fa-fw"></i> Profit Leaderboards <div className="pull-right" style={{marginTop: -6 + 'px'}}> </div>
             </div>}>
             <ListGroup>
               {this.state.leaderboard.map(elem => 
@@ -236,7 +248,8 @@ var Home = React.createClass({
 	  </Panel>
 	</div>
 
-		
+
+	
 	<Modal bsStyle="danger" show={this.state.showFollowers} onHide={this.dismissFollowerModal}>
 	<Modal.Header>
 	  <h2> Follow someone!</h2>
@@ -252,11 +265,7 @@ var Home = React.createClass({
 	</Modal.Body>
 	</Modal>
 	
-	<div className="row">
-	  {this.renderFollowAlert()}
 	
-	</div>
-
         
      </div>
     );
