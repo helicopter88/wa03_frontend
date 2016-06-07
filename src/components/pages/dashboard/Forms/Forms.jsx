@@ -67,10 +67,10 @@ var Forms = React.createClass({
 	var newPword = this.state.newPword;
 	if (newName !== '') {
 	// DB requests to change stuff here
-	  this.state.ws.send("db update_name" + userName + " " + newName);
+	  this.state.ws.send("db update_name " + userName + " " + newName);
 	}
 	if (newPword !== '') {
-	  this.state.ws.send("db update_pword" + userName + " " + newPword);
+	  this.state.ws.send("db update_pword " + userName + " " + newPword);
 	}
 
   },
@@ -95,13 +95,13 @@ var Forms = React.createClass({
   handleReset: function() {
     console.log("Account reset");
     var userName = this.state.userName;
-    this.state.ws.send("db reset_acc" + userName);
+    this.state.ws.send("db reset_acc " + userName);
   },
 
   handleDelete: function() {
     console.log("Account Delete");
     var userName = this.state.userName;
-    this.state.ws.send("db delete_acc" + userName);
+    this.state.ws.send("db delete_acc " + userName);
   },
 
 
@@ -152,8 +152,6 @@ var Forms = React.createClass({
 		  <form>
 	                  <h2>Change your on screen name</h2>
 			  <Input type="text" addonBefore="Abc" onChange={this.handleName} value={this.state.newName} placeholder="Your new name:" />
-			  <h2>Change your email</h2>
-			  <Input type="email" addonBefore="@" onChange={this.handleEmail} value={this.state.newEmail} placeholder="Your new email address:" />
 			  <h2>Change your password</h2>
 			  <Input type="password" addonBefore={<i className="fa fa-key"></i>} onChange={this.handlePword} value={this.state.newPword} placeholder="New password" />
 			  <Button bsSize="large" onClick={this.saveChanges} bsStyle="success">Save my changes</Button>
@@ -169,7 +167,7 @@ var Forms = React.createClass({
 		        <Panel header={<div align="center"><i className="fa fa-bar-chart fa-fw"></i>Profit Leaderboard</div>}>
 	                <ListGroup>
           	          {this.state.leaderboard.map(elem =>
-	                  <ListGroupItem><i className="fa fa-user fa-fw"></i> {elem.user}
+	                  <ListGroupItem><i className="fa fa-user fa-fw"></i> {elem.name}
           	            <span className="pull-right"><em>{parseFloat(elem.profit).toFixed(2)}</em></span>
 	                  </ListGroupItem>)}
 	                </ListGroup>

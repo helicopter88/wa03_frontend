@@ -73,6 +73,7 @@
     "ws": "~1.1.0",
     "bufferutil": "~1.2.1",
     "utf-8-validate": "~1.2.1",
-    "react-loader": "~1.4.0"
+    "react-loader": "~1.4.0",
+    "reactable": "~0.13.2"
   }
 }

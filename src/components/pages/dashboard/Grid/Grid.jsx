@@ -1,6 +1,9 @@
 import React, { PropTypes, Component } from 'react';
 import {Tooltip, Overlay, OverlayTrigger, Alert, Modal, Input, Panel, PageHeader, ControlLabel, Table, Button, Form, FormGroup, FormControl, Col} from 'react-bootstrap';
 import Websocket from 'ws';
+import Loader from 'react-loader';
+
+
 
 var Grid = React.createClass({
   getInitialState: function() {
@@ -15,6 +18,8 @@ var Grid = React.createClass({
       symbol: "",
       showTransactionAlert: false,
       isLoading: false,
+      loaded: false,
+      historyOffset: 1,
       ws: new WebSocket("ws://webapps3.westeurope.cloudapp.azure.com:8080/")
     });
   },
@@ -54,7 +59,8 @@ var Grid = React.createClass({
         var list = JSON.parse(j);
         this.setState({
           isLoading: false,
-          elements: list
+          elements: list,
+	  loaded: true
         });
       } 
       if(event.data.indexOf("exists") > -1) {
@@ -67,14 +73,15 @@ var Grid = React.createClass({
       if(event.data.indexOf("ask_price") > -1) {
 	var msg = JSON.parse(event.data.substring(10));
 	var price = parseFloat(msg.res);
-        this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + this.state.symbol + " " + this.state.buyQuantity + " t"); 
+        this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + this.state.symbol + " " + this.state.buyQuantity + " t");
       }
       if(event.data.indexOf("get_all_trans") > -1) {
         var j = JSON.parse(event.data.substring(("get_all_trans: ").length));
-        this.setState({transactions: j});
+	var hist = this.state.transactions;
+	hist = hist.concat(j);
+        this.setState({transactions: hist});
       }
       if(event.data.indexOf("insert_trans") > -1) {
-	console.log("HALLO");	
 	this.setState({isLoading:false});
         if (event.data.indexOf("-6") > -1) {
 	  alert("Negative amount of stocks is not allowed");
@@ -90,7 +97,7 @@ var Grid = React.createClass({
 	  this.setState({ tstring: event.data.substring(("insert_trans: ").length), showModal:false, showTransactionAlert: true});
 	  this.state.ws.send("db get_owned " + sessionStorage.userName);
           this.state.ws.send("db get_capital " + sessionStorage.userName);
-	  this.state.ws.send("db get_all_trans " + sessionStorage.userName);
+	  this.state.ws.send("db get_all_trans " + sessionStorage.userName + " " + this.state.historyOffset);
         }
       }
       if(event.data.indexOf("get_capital") > -1) { 
@@ -106,7 +113,7 @@ var Grid = React.createClass({
     open: function() {
       this.state.ws.send("db get_capital " + sessionStorage.userName);
       this.state.ws.send("db get_owned " + sessionStorage.userName);
-      this.state.ws.send("db get_all_trans " + sessionStorage.userName);
+      this.state.ws.send("db get_all_trans " + sessionStorage.userName + " 0");
     },
     componentWillMount: function() {
       this.state.ws.addEventListener('open', this.open);
@@ -132,15 +139,21 @@ var Grid = React.createClass({
 
       }
   },
+
+  increaseHistory: function() {
+    this.setState({historyOffset: (this.state.historyOffset + 1)});
+    this.state.ws.send("db get_all_trans " + sessionStorage.userName + " " + this.state.historyOffset);    
+  },
   
   render: function() {
     var self = this;
     return (
 
       <div>
+	<Loader loaded={this.state.loaded}>
         <div className="row">
           <div className="col-lg-12">
-            <PageHeader>Portfolio  - Your current capital is: {this.state.capital}</PageHeader>
+            <PageHeader>Portfolio  - Your balance is: {this.state.capital}</PageHeader>
           </div>
         </div>
 
@@ -188,7 +201,7 @@ var Grid = React.createClass({
 				self.setState({isLoading: true});
 				self.quick(elem, 'f');
 			}}>
-		  {self.state.isLoading ? 'Selling...' : 'Sell'} {this.state.quickQuantity[elem.name]} of {elem.instr}
+		  {self.state.isLoading ? 'Selling...' : 'Sell'} {this.state.quickQuantity[elem.name]} of {elem.instr} @ {elem.bp}
 		</Button>
 		<Button bsStyle="primary" bsSize="small" disabled={this.state.isLoading}
 		       	style={{marginLeft: 1 + 'em'}}
@@ -196,7 +209,7 @@ var Grid = React.createClass({
 				self.setState({isLoading: true});
 				self.quick(elem, 't');
 			}}>
-		  {self.state.isLoading ? 'Buying...' : 'Buy'} {this.state.quickQuantity[elem.name]} of {elem.instr}
+		  {self.state.isLoading ? 'Buying...' : 'Buy'} {this.state.quickQuantity[elem.name]} of {elem.instr} @ {elem.ap}
 		</Button>
 
 
@@ -236,7 +249,8 @@ var Grid = React.createClass({
                  <td> {elem.instr_id} </td>
                  <td>  {elem.amount} </td> <td> {elem.price} </td> <td> {(elem.type.indexOf('t') > -1) ? 'Buy' : 'Sell'} </td> <td> {elem.time.slice(0, elem.time.indexOf('.'))} </td></tr>)} 
             </tbody>
-            </Table>
+	    </Table>
+	    <Button bsStyle="warning" onClick={this.increaseHistory} > Show more transactions</Button>
            </div> 
 
       </Panel>
@@ -267,7 +281,7 @@ var Grid = React.createClass({
                                                                                                          </Modal>
  
   </div>
-
+	</Loader>
      </div>
       
     );

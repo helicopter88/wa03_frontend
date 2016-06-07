@@ -32,9 +32,13 @@ var Notifications = React.createClass({
             <PageHeader>Notifications</PageHeader>
           </div>
         </div>
+	<div className="row">
+	  <div className="col-lg-6">
+	    <Chat></Chat>
+	  </div>
+	</div>
 
         <div className="row">
-            <Chat> </Chat>
             <div className="col-lg-6">
               <Panel header={<span>Alert Styles</span>} >
                 <Alert bsStyle="success">

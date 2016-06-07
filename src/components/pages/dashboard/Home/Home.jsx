@@ -43,7 +43,6 @@ var Home = React.createClass({
     this.state.ws.send("db get_name " + this.state.userName);
     this.state.ws.send("db get_upnl " + this.state.userName);
     this.state.ws.send("db get_total " + this.state.userName);
-    this.state.ws.send("db get_rank " + this.state.userName);
     this.state.ws.send("db get_followable_users " + this.state.userName);    
   },
 
@@ -75,12 +74,14 @@ var Home = React.createClass({
     if(data.indexOf("get_total") > -1) {
       this.setState({ total: parseFloat(data.substring(("get_total: ").length)).toFixed(2)});
     }
-    if(data.indexOf("get_rank") > -1) {
-      this.setState({ rank: data.substring(("get_rank: ").length)});
-    }
     if(data.indexOf("get_leaderboard") > -1) {
       var lb = JSON.parse(data.substring("get_leaderboard: ".length));
       this.setState({ leaderboard: lb });
+      for (var i = 0; i < lb.length; i++) {
+	if (lb[i].user_id === this.state.userName) {
+	  this.setState({rank: (i+1)});
+	}
+      }
     }
     if(data.indexOf("get_followable_users") > -1) {
       var usrs = JSON.parse(data.substring("get_followable_users: ".length));
@@ -107,7 +108,6 @@ var Home = React.createClass({
 
   handleNewFollow: function() {
     this.state.ws.send("db follow " + this.state.newFollow + " " + this.state.userName);
-    this.state.ws.send("db get_rank " + this.state.userName);
     this.state.ws.send("db get_leaderboard profit " + this.state.userName);
     this.state.ws.send("db get_followable_users " + this.state.userName); 
     this.setState({showFollowers: false});
@@ -147,13 +147,13 @@ var Home = React.createClass({
   render: function() {
     return (
       <div>
+  <Loader loaded={this.state.loaded}>
 
         <div className="row">
+	
           <div className="col-lg-12">
-	    <Loader loaded={this.state.loaded}>
-            <PageHeader>Hello, {this.state.realName}!</PageHeader>
-	    </Loader>
-	              </div>
+	                <PageHeader>Hello, {this.state.realName}!</PageHeader>
+	   	              </div>
         </div>
 	<div className="row">
 	  {this.renderFollowAlert()}
@@ -241,7 +241,7 @@ var Home = React.createClass({
             </div>}>
             <ListGroup>
               {this.state.leaderboard.map(elem => 
-              <ListGroupItem><i className="fa fa-user fa-fw"></i> {elem.user}
+              <ListGroupItem><i className="fa fa-user fa-fw"></i> {elem.name}
                 <span className="pull-right text-muted small"><em>{parseFloat(elem.profit).toFixed(2)}</em></span>
               </ListGroupItem>)}    
             </ListGroup>
@@ -265,7 +265,8 @@ var Home = React.createClass({
 	</Modal.Body>
 	</Modal>
 	
-	
+	 </Loader>
+
         
      </div>
     );

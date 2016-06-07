@@ -14,7 +14,7 @@ var LoginPage = React.createClass({
       email: '',
       username: '',
       regPword: '',
-      currency: "",
+      currency: 'GBP',
       loginID: '',
       password: '',
       isSubmitted: false,

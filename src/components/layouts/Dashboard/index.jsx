@@ -1,6 +1,6 @@
 import React from "react";
 import Router, { Link, RouteHandler } from "react-router";
-
+import Chat from '../../pages/Chat.jsx';
 import {Navbar, Nav, NavItem, NavDropdown, MenuItem, ProgressBar, Button, Overlay, OverlayTrigger, Tooltip} from "react-bootstrap";
 import $ from "jquery";
 import classNames from "classnames";
@@ -126,6 +126,9 @@ var HomePage = React.createClass({
             </div>
 
 
+
+
+
           </Navbar>
 
 
@@ -133,6 +136,22 @@ var HomePage = React.createClass({
           <div id="page-wrapper" className="page-wrapper" ref="pageWrapper" style={{minHeight: this.state.Height}}>
             <RouteHandler {...this.props} />
           </div>
+       
+
+	<footer>
+
+
+	<Navbar fluid={true} style={ {margin: 0} }>		
+	  <div className="nav navbar-fixed-bottom navbar-right text-right">
+		<NavDropdown noCaret title=<Button bsStyle="info" className="btn-outline btn-circle text-right"><i className="fa fa-comments"></i></Button>>  
+		 	<Chat></Chat>	
+                </NavDropdown> 
+
+	   </div>
+	</Navbar>
+
+	</footer>
+
 
         </div>
 
