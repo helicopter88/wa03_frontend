@@ -96,12 +96,15 @@ var Forms = React.createClass({
     console.log("Account reset");
     var userName = this.state.userName;
     this.state.ws.send("db reset_acc " + userName);
+    this.transitionTo('dashboard');
   },
 
   handleDelete: function() {
     console.log("Account Delete");
     var userName = this.state.userName;
     this.state.ws.send("db delete_acc " + userName);
+    this.sessionStorage.help = 'off';
+    this.transitionTo('login');
   },
 
 

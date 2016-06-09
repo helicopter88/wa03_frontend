@@ -11,6 +11,7 @@ var Grid = React.createClass({
       tstring: '',
       capital: 0,
       transactions: [],
+      changeColor: [],
       showModal: false,
       elements: [],
       buyQuantity: 0,
@@ -20,15 +21,20 @@ var Grid = React.createClass({
       isLoading: false,
       loaded: false,
       historyOffset: 1,
+      pricePreview: 0,
+      totalTransactionPrice: 0,
       ws: new WebSocket("ws://webapps3.westeurope.cloudapp.azure.com:8080/")
     });
   },
   handleSymbol(e) {
         this.setState({ symbol: e.target.value });
+        this.state.ws.send("yahoo exists " + e.target.value);	
   },
 
   handleBuyValue(e) {
-	this.setState({ buyQuantity: e.target.value}); 
+	var bq = e.target.value;
+	var pPrev = this.state.pricePreview;
+	this.setState({ buyQuantity: bq, totalTransactionPrice: bq * pPrev}); 
   },
 
   handleQuickValue(e, elem) {
@@ -57,6 +63,7 @@ var Grid = React.createClass({
       if(event.data.indexOf("get_owned") > -1) {
         var j = event.data.substring(("get_owned: ").length);
         var list = JSON.parse(j);
+	list.map(elem => this.calculateColor(elem.name, elem.yc));
         this.setState({
           isLoading: false,
           elements: list,
@@ -66,14 +73,13 @@ var Grid = React.createClass({
       if(event.data.indexOf("exists") > -1) {
         if(event.data.indexOf("true") > -1) {
         	this.state.ws.send("yahoo ask_price " + this.state.symbol);
-        } else {
-        	alert("No such symbol");
-        }
+        } 
       }
       if(event.data.indexOf("ask_price") > -1) {
 	var msg = JSON.parse(event.data.substring(10));
 	var price = parseFloat(msg.res);
-        this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + this.state.symbol + " " + this.state.buyQuantity + " t");
+	var bQ = this.state.buyQuantity;
+	this.setState({pricePreview: price, totalTransactionPrice: bQ * price});
       }
       if(event.data.indexOf("get_all_trans") > -1) {
         var j = JSON.parse(event.data.substring(("get_all_trans: ").length));
@@ -124,11 +130,13 @@ var Grid = React.createClass({
     var quantity = this.state.buyQuantity;
     var symbol = this.state.symbol;
     this.state.ws.send("yahoo exists " + symbol);
-    
+    this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + this.state.symbol + " " + this.state.buyQuantity + " t");
+    this.state.ws.send("db get_all_trans " + sessionStorage.userName + " 0");
   },
 
   quick: function(elem, c) {
-	this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + elem.instr + " " + this.state.quickQuantity[elem.name] + " " + c); 
+	this.state.ws.send("db insert_trans " + sessionStorage.userName + " " + elem.instr + " " + this.state.quickQuantity[elem.name] + " " + c);
+	this.state.ws.send("db get_all_trans " + sessionStorage.userName + " 0");
   },
   
   renderAlert: function() {
@@ -143,6 +151,18 @@ var Grid = React.createClass({
   increaseHistory: function() {
     this.setState({historyOffset: (this.state.historyOffset + 1)});
     this.state.ws.send("db get_all_trans " + sessionStorage.userName + " " + this.state.historyOffset);    
+  },
+
+  calculateColor: function(name, change) {
+    var newColor = this.state.changeColor;
+    if (change.indexOf('+') > -1) {
+      newColor[name] = 'green';
+    } else if (change.indexOf("-") > -1) {
+      newColor[name] = 'red';
+    } else {
+      newColor[name] = 'orange';
+    }
+    this.setState({changeColor: newColor});
   },
   
   render: function() {
@@ -175,10 +195,12 @@ var Grid = React.createClass({
                     <Table striped bordered condensed hover>
               <thead>
             <tr>           
-            <th>Instrument</th>
+            <th >Instrument</th>
+
                     <th>Name</th>
                     <th>Amount</th>
                     <th>Avg Price</th>
+		    <th>Change from yesterday</th>
                             <th>Bid price</th>
                             <th>Ask Price</th>
 			<th>Quick Transaction</th>
@@ -186,8 +208,29 @@ var Grid = React.createClass({
             </thead>
             <tbody>
             {this.state.elements.map(elem => <tr>
-                 <td> {elem.instr} </td>
-                 <td>{elem.name} </td> <td>  {elem.amount} </td> <td>{elem.avg}</td> <td> {elem.bp} </td> <td> {elem.ap} </td> 
+                <td> 
+		  {elem.instr}
+		</td>
+                <td>
+		  {elem.name}
+		</td>
+		<td>
+		  {elem.amount}
+		</td>
+		<td>
+		  {elem.avg}
+		</td> 
+		<td>
+		  <p style={{color: this.state.changeColor[elem.name]}}>
+		    {elem.yc}
+		  </p>
+		</td> 
+		<td> 
+		  {elem.bp}
+		</td>
+		<td>
+		  {elem.ap}
+		</td> 
 		
 		<td>
 		 <input type="number"
@@ -195,7 +238,7 @@ var Grid = React.createClass({
 			value={this.state.quickQuantity[elem.name]} 
 			onChange={function (e) { self.handleQuickValue(e, elem.name);}}>
 		</input>
-		<Button bsStyle="danger" bsSize="small" disabled={this.state.isLoading}
+		<Button bsStyle="danger" bsSize="small" disabled={this.state.isLoading || !this.state.quickQuantity[elem.name]}
 		       	style={{marginLeft: 1 + 'em'}}
 		        onClick={function() {
 				self.setState({isLoading: true});
@@ -203,7 +246,7 @@ var Grid = React.createClass({
 			}}>
 		  {self.state.isLoading ? 'Selling...' : 'Sell'} {this.state.quickQuantity[elem.name]} of {elem.instr} @ {elem.bp}
 		</Button>
-		<Button bsStyle="primary" bsSize="small" disabled={this.state.isLoading}
+		<Button bsStyle="primary" bsSize="small" disabled={this.state.isLoading || !this.state.quickQuantity[elem.name]}
 		       	style={{marginLeft: 1 + 'em'}}
 		        onClick={function() {
 				self.setState({isLoading: true});
@@ -247,7 +290,7 @@ var Grid = React.createClass({
             <tbody>
             {this.state.transactions.map(elem => <tr>
                  <td> {elem.instr_id} </td>
-                 <td>  {elem.amount} </td> <td> {elem.price} </td> <td> {(elem.type.indexOf('t') > -1) ? 'Buy' : 'Sell'} </td> <td> {elem.time.slice(0, elem.time.indexOf('.'))} </td></tr>)} 
+                 <td> {elem.amount} </td> <td> {elem.price} </td> <td> {(elem.type.indexOf('t') > -1) ? 'Buy' : 'Sell'} </td> <td> {elem.time.slice(0, elem.time.indexOf('.'))} </td></tr>)} 
             </tbody>
 	    </Table>
 	    <Button bsStyle="warning" onClick={this.increaseHistory} > Show more transactions</Button>
@@ -259,21 +302,26 @@ var Grid = React.createClass({
 
 
 
-           <Modal show={this.state.showModal} onHide={this.close}>
-                     <Modal.Header closeButton>
-                                 <Modal.Title>Buy more instruments</Modal.Title>
-                                           </Modal.Header>
-
-                                                     <Modal.Body>
-							<form onSubmit={this.buyStocks}>
-							<h4>The instrument symbol below:</h4>
-							<input type="search" value={this.state.symbol} onChange={this.handleSymbol} placeholder="Eg AAPL:"></input>
-							<br></br>
-							<h4>Quantity below:</h4>
-							<input type="number" value={this.state.buyQuantity} onChange={this.handleBuyValue} placeholder="Quantity:"></input>
-							<br></br><br></br>
-							<Button bsStyle="primary" onClick={!this.state.isLoading ? this.buyStocks : null}>{this.state.isLoading ? 'Buying... ' : 'Buy'} {this.state.buyQuantity} of {this.state.symbol}</Button>	
-							</form>
+	<Modal show={this.state.showModal} onHide={this.close}>
+          <Modal.Header closeButton>
+            <Modal.Title>Buy more instruments</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+	    <form onSubmit={this.buyStocks}>
+	      <h4>The instrument symbol below:</h4>
+	      <input type="search" value={this.state.symbol} onChange={this.handleSymbol} placeholder="Eg AAPL:"></input>
+	      <br></br>
+	      <h4>Price preview for {this.state.symbol}:</h4>
+	      <p>{this.state.pricePreview}</p>
+	      <h4>Quantity below:</h4>
+	      <input type="number" value={this.state.buyQuantity} onChange={this.handleBuyValue} placeholder="Quantity:"></input>
+	      <br></br>
+	      <h4>Total Transaction price:</h4>
+	      <p>{this.state.totalTransactionPrice}</p>
+	      <br></br>
+	
+	      <Button bsStyle="primary" onClick={!this.state.isLoading ? this.buyStocks : null}>{this.state.isLoading ? 'Buying... ' : 'Buy'} {this.state.buyQuantity} of {this.state.symbol}</Button>	
+	    </form>
                                                      </Modal.Body>          
                                                                  <Modal.Footer>
                                                                                        <Button onClick={this.close}>Close</Button>

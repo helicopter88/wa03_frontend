@@ -1,7 +1,7 @@
 import React from "react";
 import Router, { Link, RouteHandler } from "react-router";
 import Chat from '../../pages/Chat.jsx';
-import {Navbar, Nav, NavItem, NavDropdown, MenuItem, ProgressBar, Button, Overlay, OverlayTrigger, Tooltip} from "react-bootstrap";
+import {DropdownButton, Navbar, Nav, NavItem, NavDropdown, MenuItem, ProgressBar, Button, Overlay, OverlayTrigger, Tooltip} from "react-bootstrap";
 import $ from "jquery";
 import classNames from "classnames";
 
@@ -30,11 +30,22 @@ var HomePage = React.createClass({
       multiLevelDropdownCollapsed: true,
       thirdLevelDropdownCollapsed: true,
       samplePagesCollapsed: true,
-      help: 'off'
+      help: 'off',
+      showChat: 'none',
+      chat: <div className="col-lg-12"><Chat></Chat></div>
+      //ftHeight: '100 px',
     };
 
   },
-
+  
+  toggleChat: function() {
+    if (this.state.showChat === 'none') {
+      this.setState({showChat: 'initial', ftHeight: '410 px'});
+    } else {
+      this.setState({showChat: 'none', ftHeight: '100 px'});
+    }
+  },
+  
   toggleMenu: function(){
     if($(".navbar-collapse").hasClass('collapse')){
       $(".navbar-collapse").removeClass('collapse');  
@@ -141,14 +152,21 @@ var HomePage = React.createClass({
 	<footer>
 
 
-	<Navbar fluid={true} style={ {margin: 0} }>		
-	  <div className="nav navbar-fixed-bottom navbar-right text-right">
-		<NavDropdown noCaret title=<Button bsStyle="info" className="btn-outline btn-circle text-right"><i className="fa fa-comments"></i></Button>>  
-		 	<Chat></Chat>	
-                </NavDropdown> 
+	  <div style={{position: 'fixed', bottom: 0, width: 100 + '%', height: this.state.ftHeight }}>
+	      <div className="col-lg-6 pull-right">
+		<div className="row">
+		<div style={{display: this.state.showChat, width: 100 + '%'}} className="pull-right">
+		  {this.state.chat}
+		</div>
+		</div>
+		<div className="row" style={{width: 98 + '%'}}>
+		<Button bsStyle="info" onClick={this.toggleChat} className="btn-outline btn-circle pull-right btn-xl"> 
+		  <i className="fa fa-comments"></i>
+                </Button> 
+		</div>
+	      </div>
 
 	   </div>
-	</Navbar>
 
 	</footer>
 

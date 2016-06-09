@@ -23,7 +23,9 @@ var Home = React.createClass({
                 total: 0,
 		rank: 0,
 		users: [],
+                news: [],
 		newFollow: '',
+		oldFollow: '',
 		showFollowers: false,
 		showFollowAlert: false,
 		loaded: false,
@@ -44,6 +46,7 @@ var Home = React.createClass({
     this.state.ws.send("db get_upnl " + this.state.userName);
     this.state.ws.send("db get_total " + this.state.userName);
     this.state.ws.send("db get_followable_users " + this.state.userName);    
+    this.state.ws.send("news get_international_news");
   },
 
   handleData: function(event) {
@@ -85,7 +88,14 @@ var Home = React.createClass({
     }
     if(data.indexOf("get_followable_users") > -1) {
       var usrs = JSON.parse(data.substring("get_followable_users: ".length));
-      this.setState({ users: usrs});
+      var old  = this.state.newFollow;
+      this.setState({ users: usrs, newFollow: usrs[0], oldFollow: old});
+      console.log(usrs[0]);
+    }
+    if(data.indexOf("get_international_news") > -1) {
+      var n = JSON.parse(data.substring("get_international_news: ".length));
+      this.setState({news: n});
+      
     }
   },
  
@@ -109,7 +119,9 @@ var Home = React.createClass({
   handleNewFollow: function() {
     this.state.ws.send("db follow " + this.state.newFollow + " " + this.state.userName);
     this.state.ws.send("db get_leaderboard profit " + this.state.userName);
-    this.state.ws.send("db get_followable_users " + this.state.userName); 
+    this.state.ws.send("db get_followable_users " + this.state.userName);
+    this.state.ws.send("db get_capital " + this.state.userName);
+    this.state.ws.send("db get_total " + this.state.userName);
     this.setState({showFollowers: false});
     this.setState({showFollowAlert: true});  
   },
@@ -119,7 +131,7 @@ var Home = React.createClass({
          return (
            <div className="text-center">
            <Alert bsStyle="warning" onDismiss={this.dismissFollowAlert}>
-           <h4>You have just followed {this.state.newFollow}</h4>
+           <h4>You have just followed {this.state.oldFollow}</h4>
            <Button bsStyle="primary" onClick={this.dismissFollowAlert}>Ok</Button></Alert>
            </div>);
     }
@@ -227,7 +239,15 @@ var Home = React.createClass({
 	  </div>
 	</OverlayTrigger>
 	 </div>
-        </div>
+         	 <h1> International News:</h1>
+	 <h1><small>Courtesy of Yahoo Finance</small></h1>
+ 	<div style={{overflow: "auto", height: 14 + 'em'}}>
+
+         <ListGroup>
+           {this.state.news.map(elem => <ListGroupItem href={elem.link}> {elem.title} </ListGroupItem>)}
+         </ListGroup>
+	 </div>
+         </div>
 
 	
 	<div className="col-lg-3">
@@ -264,7 +284,8 @@ var Home = React.createClass({
            <Button style={{marginLeft: 10 + 'px'}} onClick={this.dismissFollowerModal}>Close</Button></p>
 	</Modal.Body>
 	</Modal>
-	
+
+
 	 </Loader>
 
         

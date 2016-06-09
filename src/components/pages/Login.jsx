@@ -135,7 +135,7 @@ var LoginPage = React.createClass({
 		  <Input type="password" placeholder="Your password:" value={this.state.regPword} onChange={this.handlePword}></Input>
 		  <h4>Finally, pick your preferred trading currency</h4>
 		  <Input type="select" placeholder="Select a currency" onChange={this.handleCurrency} id={this.state.currency}>
-		    <option value="GPB">GBP</option>
+		    <option value="GBP">GBP</option>
 		    <option value="USD">USD</option>
 		  </Input>
 		  </div>
